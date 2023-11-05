@@ -2,8 +2,10 @@
 #include <random>
 #include <algorithm> // for std::find
 
-ProbabilisticBot::ProbabilisticBot(const std::pair<int, int>& startPos, const Sensor& sensorObj)
-    : currentPosition(startPos), sensor(sensorObj) {}
+ProbabilisticBot::ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, int alpha, std::string id)
+    : currentPosition(startPos), sensor(range_mod, alpha), id(id) {
+
+    }
 
 void ProbabilisticBot::move(int x, int y) {
     // Implementation for probabilistic move

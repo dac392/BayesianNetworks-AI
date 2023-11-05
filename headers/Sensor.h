@@ -11,7 +11,7 @@ private:
     std::uniform_real_distribution<float> distribution;
 
 public:
-    Sensor(int range, float probabilityModel);
+    Sensor(int range, int alpha);
     bool detect(int distance);
 
     // Getters and setters

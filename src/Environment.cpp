@@ -1,14 +1,19 @@
 #include "Environment.h"
 
-Environment::Environment(int shipSize) : ship(shipSize) {
+Environment::Environment(int shipSize, int range_mod, int alpha) 
+            : ship(shipSize), range_mod(range_mod), alpha(alpha) {
     // Initialize ship and other environment-specific setup
 }
 
-Environment::~Environment() {
-    // Resources are managed by smart pointers, so no need for a complex destructor
-}
+void Environment::addBot(std::string type, std::string id) {
+    std::vector<int> pos = Utility::generateCoordinate();
+    std::unique_ptr<Bot> bot;
+    if (type == "deterministic") {
+        bot = std::make_unique<DeterministicBot>(pos, range_mod, alpha, id);
+    } else {
+        bot = std::make_unique<ProbabilisticBot>(pos, range_mod, alpha, id);
+    }
 
-void Environment::addBot(std::unique_ptr<Bot> bot) {
     bots.push_back(std::move(bot));
 }
 

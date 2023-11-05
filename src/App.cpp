@@ -2,11 +2,9 @@
 #include "DeterministicBot.h"
 #include "ProbabilisticBot.h"
 
-App::App(int shipSize) : environment(shipSize) {
-    // The environment can be initialized here with bots or other settings if needed
-    // For example:
-    // environment.addBot(std::make_unique<DeterministicBot>());
-    // environment.addBot(std::make_unique<ProbabilisticBot>());
+App::App(int shipSize, int range_mod, int alpha) : environment(shipSize, range_mod, alpha) {
+    environment.addBot("Deterministic", "bot1");
+    
 }
 
 void App::run() {
@@ -17,7 +15,9 @@ void App::run() {
 
 // In your main program, you would typically create an instance of App and call run
 int main() {
-    App app(50); // Initialize the App with a ship size of 10, for example
+    int range_mod = 2;      // has to be greater than 1
+    int alpha = 1; // has to be greater than 0
+    App app(50, range_mod, alpha); // Initialize the App with a ship size of 10, for example
     app.run(); // Run the application
     return 0;
 }

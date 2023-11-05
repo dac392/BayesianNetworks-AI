@@ -5,11 +5,12 @@
 
 class DeterministicBot : public Bot {
 private:
+    std::string id;
     std::pair<int, int> currentPosition;
     Sensor sensor;
 
 public:
-    DeterministicBot(const std::pair<int, int>& startPos, const Sensor& sensor);
+    DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, std::string id);
 
     // Override Bot methods
     void move(int x, int y) override;

@@ -2,8 +2,8 @@
 #include <random>
 
 // Constructor implementation
-Sensor::Sensor(int range, float probabilityModel) 
-    : range(range), probabilityModel(probabilityModel), 
+Sensor::Sensor(int range, int alpha) 
+    : range(range), 
       generator(std::random_device{}()), distribution(0.0f, 1.0f) {}
 
 // detect method implementation

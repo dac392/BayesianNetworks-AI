@@ -1,7 +1,8 @@
 #include "DeterministicBot.h"
 
-DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, const Sensor& sensorObj)
-    : currentPosition(startPos), sensor(sensorObj) {}
+DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, std::string id)
+: currentPosition(startPos), sensor(range_mod, alpha), id(id){
+}
 
 void DeterministicBot::move(int x, int y) {
     // Implementation for deterministic move

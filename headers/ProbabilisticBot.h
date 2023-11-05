@@ -5,11 +5,12 @@
 
 class ProbabilisticBot : public Bot {
 private:
+    std::string id;
     std::pair<int, int> currentPosition;
     Sensor sensor;
 
 public:
-    ProbabilisticBot(const std::pair<int, int>& startPos, const Sensor& sensor);
+    ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, int alpha, std::string id);
 
     // Override Bot methods
     void move(int x, int y) override;

@@ -8,7 +8,7 @@ private:
     Environment environment;
 
 public:
-    App(int shipSize); // Constructor that initializes the environment with a ship size
+    App(int shipSize, int range_mod, int alpha); // Constructor that initializes the environment with a ship size
     void run(); // Starts the application
 };
 
