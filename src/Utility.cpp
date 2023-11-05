@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 
-std::vector<int> Utility::generateCoordinate(){
+std::pair<int, int> Utility::generateCoordinate(){
     // Seed the random number generator.
     // Note: You normally only seed once, so this would go elsewhere in a full program.
     static bool seeded = false;
@@ -16,6 +16,6 @@ std::vector<int> Utility::generateCoordinate(){
     int y = std::rand() % 48 + 1;
 
     // Create a vector with the generated coordinates and return it
-    std::vector<int> coordinate = {x, y};
+    std::pair<int,int> coordinate = {x, y};
     return coordinate;
 }

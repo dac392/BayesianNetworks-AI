@@ -1,11 +1,11 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include <vector>
+#include <utility>
 
 class Utility {
 public:
-    static std::vector<int> generateCoordinate();
+    static std::pair<int, int> generateCoordinate();
 };
 
 #endif // UTILITY_H

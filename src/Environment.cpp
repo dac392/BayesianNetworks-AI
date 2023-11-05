@@ -6,7 +6,7 @@ Environment::Environment(int shipSize, int range_mod, int alpha)
 }
 
 void Environment::addBot(std::string type, std::string id) {
-    std::vector<int> pos = Utility::generateCoordinate();
+    std::pair<int, int> pos = Utility::generateCoordinate();
     std::unique_ptr<Bot> bot;
     if (type == "deterministic") {
         bot = std::make_unique<DeterministicBot>(pos, range_mod, alpha, id);
