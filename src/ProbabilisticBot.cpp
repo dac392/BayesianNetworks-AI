@@ -5,6 +5,7 @@ std::string ProbabilisticBot::getType(){
 }
 
 bool ProbabilisticBot::scan(std::vector<std::pair<int, int>> leaks){
+    totalActions++;
     // Iterate over each leak in the list
     for (const auto& leak : leaks) {
         // Calculate the Manhattan distance from the bot's current position to the leak's position

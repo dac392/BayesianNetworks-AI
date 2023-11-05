@@ -10,6 +10,7 @@ class Bot {
 protected:
     bool dumb;
     bool active;
+    int totalActions;
     std::string id;
     std::pair<int, int> currentPosition;
     std::vector< std::pair<int, int> > openPositions;

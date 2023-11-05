@@ -5,6 +5,7 @@ std::string getType(){
 }
 
 bool DeterministicBot::scan(std::vector<std::pair<int, int>> leaks) {
+    totalActions++;
     // Get the sensor's range for checking leaks
     int sensorRange = this->getSensor().getRange();
     

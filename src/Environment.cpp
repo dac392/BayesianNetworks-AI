@@ -34,7 +34,8 @@ void Environment::runSimulation() {
         // probably do something if its Probabilistic
 
         while(bot->isActive()){
-            bot->scan(ship.getPositionOfLeaks());
+            bool leakDetected = bot->scan(ship.getPositionOfLeaks());
+            
 
             // detect
             // total actions +=1
