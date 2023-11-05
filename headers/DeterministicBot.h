@@ -2,6 +2,7 @@
 #define DETERMINISTIC_BOT_H
 
 #include "Bot.h"
+#include <algorithm>
 
 class DeterministicBot : public Bot {
 
@@ -10,7 +11,10 @@ public:
 
     std::string getType() override;
     bool scan(std::vector<std::pair<int, int>> leaks) override;
-    void performAction() override;
+    std::vector<std::pair<int, int>> getPosibleLeakPositions() override;
+    std::vector<std::pair<int, int>> updatePosiblePositions() override;
+    void moveToNextLocation() override;
+
     std::vector<std::pair<int, int>> DeterministicBot::getSpawnRadius();
 
 };

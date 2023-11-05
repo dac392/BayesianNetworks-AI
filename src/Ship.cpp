@@ -93,21 +93,20 @@ void Ship::addLeak(const std::vector<std::pair<int, int>>& blockedPositions) {
     leaks.emplace_back(position); // Add the new Leak object with the position
 }
 
+std::vector<std::pair<int, int>> Ship::reset() {
+    std::vector<std::pair<int, int>> fixedLeaks;
 
+    // Go through each leak and reset the grid position to 0
+    for (const auto& leak : leaks) {
+        std::pair<int, int> pos = leak.getPosition();
+        grid[pos.first][pos.second] = 0;
+        fixedLeaks.push_back(pos); // Add the leak position to the vector
+    }
 
-// bool Ship::isLeakAt(int x, int y) {
-//     return x >= 0 && x < dimensions && y >= 0 && y < dimensions && grid[x][y] == 1;
-// }
+    leaks.clear(); // Clear the leaks after fixing them
 
-// void Ship::plugLeakAt(int x, int y) {
-//     if (isLeakAt(x, y)) {
-//         grid[x][y] = 0; // Set the cell to 0 to indicate the leak has been plugged
-//         // Find the leak in the leaks vector and remove it
-//         leaks.erase(std::remove_if(leaks.begin(), leaks.end(), [x, y](const Leak& leak) {
-//             return leak.getX() == x && leak.getY() == y;
-//         }), leaks.end());
-//     }
-// }
+    return fixedLeaks; // Return the vector of fixed leaks
+}
 
 std::vector<std::pair<int, int>> Ship::getNeighbors(int x, int y) const {
     std::vector<std::pair<int, int>> neighbors;

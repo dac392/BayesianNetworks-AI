@@ -10,7 +10,8 @@ public:
     // Implement any specific methods that differ from Bot's implementation
     std::string getType() override;
     bool scan(std::vector<std::pair<int, int>> leaks) override ;
-    void performAction() override;
+    std::vector<std::pair<int, int>> getPosibleLeakPositions() override;
+    void moveToNextLocation() override;
 
     // ... other methods specific to ProbabilisticBot ...
 };

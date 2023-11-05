@@ -22,7 +22,11 @@ bool ProbabilisticBot::scan(std::vector<std::pair<int, int>> leaks){
     return false;
 }
 
+std::vector<std::pair<int, int>> ProbabilisticBot::getPosibleLeakPositions(){
 
-void ProbabilisticBot::performAction()  {
+}
+
+
+void ProbabilisticBot::moveToNextLocation(){
 
 }

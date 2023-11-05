@@ -14,6 +14,7 @@ protected:
     std::string id;
     std::pair<int, int> currentPosition;
     std::vector< std::pair<int, int> > openPositions;
+    std::vector<std::pair<int, int>> goalPositions;
     Sensor sensor;
 
     // Protected constructor to be called by derived classes
@@ -42,9 +43,13 @@ public:
 
     // Still pure virtual as the implementation is likely to be different in derived classes
     virtual bool scan(std::vector<std::pair<int, int>> leaks) = 0;
-    
-    // The same for performAction, it will be specific to each derived class
-    virtual void performAction() = 0;
+    virtual std::vector<std::pair<int, int>> getPosibleLeakPositions() = 0;
+    virtual std::vector<std::pair<int, int>> updatePosiblePositions() = 0;
+    virtual void moveToNextLocation() = 0;
+
+    virtual void setLeakPositions(std::vector<std::pair<int, int>> positions){
+        goalPositions = positions;
+    }
 
     // Accessor methods can be implemented here as they're likely to be common
     virtual std::pair<int, int> getCurrentPosition() const {

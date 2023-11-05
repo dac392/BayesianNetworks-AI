@@ -23,7 +23,7 @@ void Environment::runSimulation() {
     // Logic to run the simulation with bots and the ship
     // This will typically involve iterating over the bots and invoking their behavior
     for (auto& bot : bots) {
-
+        
         if(bot->getType() == "Deterministic"){
             DeterministicBot* detBot = dynamic_cast<DeterministicBot*>(bot.get());
             ship.addLeak(detBot->getSpawnRadius());
@@ -33,25 +33,25 @@ void Environment::runSimulation() {
         }
         // probably do something if its Probabilistic
 
+        std::vector<std::pair<int, int>> posibleLeakPositions;
+
+
+        // concider moving most of this into a bot specific method performAction()
         while(bot->isActive()){
             bool leakDetected = bot->scan(ship.getPositionOfLeaks());
-            
+            if(leakDetected){
+                posibleLeakPositions = bot->getPosibleLeakPositions();
+            }else{
+                posibleLeakPositions = bot->updatePosiblePositions();
+            }
 
-            // detect
-            // total actions +=1
-            // if detection negative
-            // if detection positive
-            // next location = cell in openCells that is closest to bot
-            // totalActions += distance(bot_locations, next_location)
-            // bot location = next_location
+            bot->moveToNextLocation();
         }
-
-        // The bot could move, scan, and perform actions
-        bot->performAction();
-        // You could implement logic here that checks the state of the ship, 
-        // determines if the bot's actions have an effect, etc.
+        std::vector<std::pair<int, int>> leakPositions = ship.reset();
+        bot->setLeakPositions(leakPositions);
     }
-    // Perform other simulation steps, such as advancing time, handling the ship state, etc.
+
+    
 }
 
 // Implementation of other environment-related methods

@@ -28,8 +28,7 @@ public:
     ~Ship();
     void initializeGrid();
     void addLeak(const std::vector<std::pair<int, int>>& blockedPositions);
-    // bool isLeakAt(int x, int y);
-    // void plugLeakAt(int x, int y);
+    std::vector<std::pair<int, int>> Ship::reset();
     std::vector<std::vector<int>> getGrid() const;
     std::vector<std::pair<int, int>> getPositionOfLeaks();
 };
