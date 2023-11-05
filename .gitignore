@@ -1,0 +1,4 @@
+.vscode/
+build-ShipGUI-Desktop_Qt_6_6_0_MinGW_64_bit-Debug/
+ShipGUI/
+ShipGridWidget.cpp
