@@ -69,26 +69,45 @@ void Ship::eliminate_dead_ends(std::set<std::pair<int, int>>& dead_ends) {
 
 
 
-void Ship::placeLeak(int x, int y) {
-    if (x >= 0 && x < dimensions && y >= 0 && y < dimensions) {
-        grid[x][y] = 1; // Set the cell to 1 to indicate a leak
-        leaks.push_back(Leak(x, y)); // Add a new Leak object to the vector of leaks
-    }
+void Ship::addLeak(const std::vector<std::pair<int, int>>& blockedPositions) {
+    std::pair<int, int> position;
+    bool isPositionValid;
+
+    do {
+        position = Utility::generateCoordinate();
+        isPositionValid = true;
+
+        // Check against blocked positions
+        if (std::find(blockedPositions.begin(), blockedPositions.end(), position) != blockedPositions.end()) {
+            isPositionValid = false;
+
+        // Check if the position on the grid is not 0 (which means it's not open for a new leak)
+        }else if (grid[position.first][position.second] != 0) {
+            isPositionValid = false;
+        }
+
+    } while (!isPositionValid);
+
+    // If we have a valid position that's open, set it as a leak on the grid and add the Leak
+    grid[position.first][position.second] = 2; // Mark the position as having a leak
+    leaks.emplace_back(position); // Add the new Leak object with the position
 }
 
-bool Ship::isLeakAt(int x, int y) {
-    return x >= 0 && x < dimensions && y >= 0 && y < dimensions && grid[x][y] == 1;
-}
 
-void Ship::plugLeakAt(int x, int y) {
-    if (isLeakAt(x, y)) {
-        grid[x][y] = 0; // Set the cell to 0 to indicate the leak has been plugged
-        // Find the leak in the leaks vector and remove it
-        leaks.erase(std::remove_if(leaks.begin(), leaks.end(), [x, y](const Leak& leak) {
-            return leak.getX() == x && leak.getY() == y;
-        }), leaks.end());
-    }
-}
+
+// bool Ship::isLeakAt(int x, int y) {
+//     return x >= 0 && x < dimensions && y >= 0 && y < dimensions && grid[x][y] == 1;
+// }
+
+// void Ship::plugLeakAt(int x, int y) {
+//     if (isLeakAt(x, y)) {
+//         grid[x][y] = 0; // Set the cell to 0 to indicate the leak has been plugged
+//         // Find the leak in the leaks vector and remove it
+//         leaks.erase(std::remove_if(leaks.begin(), leaks.end(), [x, y](const Leak& leak) {
+//             return leak.getX() == x && leak.getY() == y;
+//         }), leaks.end());
+//     }
+// }
 
 std::vector<std::pair<int, int>> Ship::getNeighbors(int x, int y) const {
     std::vector<std::pair<int, int>> neighbors;
@@ -169,6 +188,14 @@ std::vector<std::pair<int, int>> Ship::get_closed_neighbors(int x, int y) {
         }
     }
     return closed_neighbors;
+}
+
+std::vector<std::pair<int, int>> Ship::getPositionOfLeaks() {
+    std::vector<std::pair<int, int>> positions;
+    for (const auto& leak : leaks) {
+        positions.push_back(leak.getPosition());
+    }
+    return positions;
 }
 
 

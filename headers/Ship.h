@@ -6,6 +6,7 @@
 #include <utility>
 #include <random>    // For std::default_random_engine
 #include "Leak.h"
+#include "Utility.h"
 
 class Ship {
 private:
@@ -26,10 +27,11 @@ public:
     explicit Ship(int size = 50);
     ~Ship();
     void initializeGrid();
-    void placeLeak(int x, int y);
-    bool isLeakAt(int x, int y);
-    void plugLeakAt(int x, int y);
+    void addLeak(const std::vector<std::pair<int, int>>& blockedPositions);
+    // bool isLeakAt(int x, int y);
+    // void plugLeakAt(int x, int y);
     std::vector<std::vector<int>> getGrid() const;
+    std::vector<std::pair<int, int>> getPositionOfLeaks();
 };
 
 #endif // SHIP_H

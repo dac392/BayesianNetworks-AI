@@ -5,7 +5,8 @@
 
 class Sensor {
 private:
-    int range; // The maximum range of the sensor
+    int range;
+    int k; 
     float probabilityModel; // The probability model coefficient for detection
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution;

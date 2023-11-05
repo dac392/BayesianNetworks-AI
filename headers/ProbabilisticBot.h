@@ -4,22 +4,15 @@
 #include "Bot.h"
 
 class ProbabilisticBot : public Bot {
-private:
-    std::string id;
-    std::pair<int, int> currentPosition;
-    Sensor sensor;
-
 public:
-    ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, int alpha, std::string id);
+    using Bot::Bot; // Use the constructor from Bot
 
-    // Override Bot methods
-    void move(int x, int y) override;
+    // Implement any specific methods that differ from Bot's implementation
+    std::string getType() override;
     bool scan(int x, int y) override;
     void performAction() override;
 
-    // Override accessor methods
-    std::pair<int, int> getCurrentPosition() const override;
-    Sensor& getSensor() override;
+    // ... other methods specific to ProbabilisticBot ...
 };
 
 #endif // PROBABILISTIC_BOT_H

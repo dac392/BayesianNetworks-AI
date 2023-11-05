@@ -1,9 +1,8 @@
-#include "App.h"
-#include "DeterministicBot.h"
-#include "ProbabilisticBot.h"
+#include "../headers/App.h"
 
 App::App(int shipSize, int range_mod, int alpha) : environment(shipSize, range_mod, alpha) {
-    environment.addBot("Deterministic", "bot1");
+    // if a bot can only detect 1 leak, true
+    environment.addBot("Deterministic", "bot1", true);
     
 }
 

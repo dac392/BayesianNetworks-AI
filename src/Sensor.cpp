@@ -1,10 +1,12 @@
-#include "Sensor.h"
+#include "../headers/Sensor.h"
 #include <random>
 
 // Constructor implementation
-Sensor::Sensor(int range, int alpha) 
-    : range(range), 
-      generator(std::random_device{}()), distribution(0.0f, 1.0f) {}
+Sensor::Sensor(int range_mod, int alpha) 
+    : k(range_mod), 
+      generator(std::random_device{}()), distribution(0.0f, 1.0f) {
+        range = (2*k+1) + (2*k+1);
+      }
 
 // detect method implementation
 bool Sensor::detect(int distance) {

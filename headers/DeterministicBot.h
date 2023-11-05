@@ -4,22 +4,15 @@
 #include "Bot.h"
 
 class DeterministicBot : public Bot {
-private:
-    std::string id;
-    std::pair<int, int> currentPosition;
-    Sensor sensor;
 
 public:
-    DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, std::string id);
+    using Bot::Bot;
 
-    // Override Bot methods
-    void move(int x, int y) override;
+    std::string getType() override;
     bool scan(int x, int y) override;
     void performAction() override;
+    std::vector<std::pair<int, int>> DeterministicBot::getSpawnRadius();
 
-    // Override accessor methods
-    std::pair<int, int> getCurrentPosition() const override;
-    Sensor& getSensor() override;
 };
 
 #endif // DETERMINISTIC_BOT_H

@@ -19,8 +19,9 @@ private:
 public:
     Environment(int shipSize, int range_mod, int alpha);
 
-    void addBot(std::string type, std::string id);
+    void addBot(std::string type, std::string id, bool mode);
     void runSimulation();
+    std::vector<std::pair<int, int>> getSpawnRadius();
 
     // Other environment-related methods
 };
