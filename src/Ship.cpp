@@ -4,6 +4,9 @@
 #include <chrono>    // For std::chrono::system_clock
 
 
+#define OPEN 0
+#define CLOSED 1
+
 
 Ship::Ship(int size) : dimensions(size), grid(size, std::vector<int>(size, 0)),
                        rng(std::chrono::system_clock::now().time_since_epoch().count()) { // Seeding the random number generator
@@ -15,73 +18,56 @@ Ship::~Ship() {
 }
 
 void Ship::initializeGrid() {
- // Initialize the grid as a DxD blocked cells
-    grid = std::vector<std::vector<int>>(dimensions, std::vector<int>(dimensions, 1));
+    // we use closed=0 and open=-1 for grid at the beginning.
+    // Initialize the grid as a DxD blocked cells (blocked means 0)
+    grid = std::vector<std::vector<int>>(dimensions, std::vector<int>(dimensions, 0));
 
     // Randomly choose a cell and open it
     std::uniform_int_distribution<int> dis(1, dimensions - 2); // interior cells only
     int start_x = dis(rng);
     int start_y = dis(rng);
-    grid[start_x][start_y] = 0;
 
-    std::set<std::pair<int, int>> frontier;
+    std::vector<std::pair<int, int>> fringe;
+    fringe.push_back({start_x, start_y});
 
-    // Get initial frontier cells (blocked cells with exactly one open neighbor)
-    auto initial_neighbors = getNeighbors(start_x, start_y);
-    for (auto& n : initial_neighbors) {
-        if (grid[n.first][n.second] == 1) {
-            frontier.insert(n);
-        }
-    }
+    while (!fringe.empty()) {
+        // Get a random coordinate from the fringe and name it curr
+        std::shuffle(fringe.begin(), fringe.end(), rng);
+        std::pair<int, int> curr = fringe.back();
+        fringe.pop_back();
 
-    // Iteratively open cells
-    while (!frontier.empty()) {
-        // Convert set to vector for random access
-        std::vector<std::pair<int, int>> frontier_vec(frontier.begin(), frontier.end());
-
-        // Randomly select a cell from the frontier
-        std::shuffle(frontier_vec.begin(), frontier_vec.end(), rng);
-        auto cell = frontier_vec.front();
-        frontier.erase(cell);
-
-        // Open the cell
-        grid[cell.first][cell.second] = 0;
-
-        // Update the frontier
-        auto neighbors = getNeighbors(cell.first, cell.second);
-        for (auto& n : neighbors) {
-            if (grid[n.first][n.second] == 1 && getOpenNeighbors(n.first, n.second).size() == 1) {
-                frontier.insert(n);
+        // If the grid at the coordinate curr is closed,
+        if (grid[curr.first][curr.second] == 0 || grid[curr.first][curr.second] == 1) {
+            grid[curr.first][curr.second] = -1;
+            auto neighbors = getNeighbors(curr.first, curr.second);
+            for (auto& neighbor : neighbors) {
+                if (grid[neighbor.first][neighbor.second] != -1) {
+                    grid[neighbor.first][neighbor.second]++;
+                    fringe.push_back(neighbor);
+                }
             }
         }
     }
+    normalizeGrid();
+    auto dead_ends = get_dead_ends();
+    eliminate_dead_ends(dead_ends);
+}
 
-    // Identify dead ends and open half of them randomly
-    std::vector<std::pair<int, int>> deadEnds;
-    for (int x = 1; x < dimensions - 1; ++x) {
-        for (int y = 1; y < dimensions - 1; ++y) {
-            if (grid[x][y] == 0 && getOpenNeighbors(x, y).size() == 1) {
-                deadEnds.emplace_back(x, y);
-            }
-        }
-    }
+void Ship::eliminate_dead_ends(std::set<std::pair<int, int>>& dead_ends) {
+    // Eliminate half of the dead ends randomly
+    std::vector<std::pair<int, int>> dead_ends_vector(dead_ends.begin(), dead_ends.end());
+    std::shuffle(dead_ends_vector.begin(), dead_ends_vector.end(), rng);
 
-    std::shuffle(deadEnds.begin(), deadEnds.end(), rng);
+    int length_to_remove = dead_ends_vector.size() / 2;
 
-    // Open half of the dead ends' neighbors
-    for (size_t i = 0; i < deadEnds.size() / 2; ++i) {
-        auto deadEnd = deadEnds[i];
-        auto closedNeighbors = getNeighbors(deadEnd.first, deadEnd.second);
-        closedNeighbors.erase(std::remove_if(closedNeighbors.begin(), closedNeighbors.end(), [this](const std::pair<int, int>& n) {
-            return grid[n.first][n.second] == 0;
-        }), closedNeighbors.end());
-
-        if (!closedNeighbors.empty()) {
-            std::shuffle(closedNeighbors.begin(), closedNeighbors.end(), rng);
-            grid[closedNeighbors.front().first][closedNeighbors.front().second] = 0;
-        }
+    for (int i = 0; i < length_to_remove; ++i) {
+        auto position = dead_ends_vector[i];
+        grid[position.first][position.second] = OPEN; // Open up the dead end
+        dead_ends.erase(position); // Remove from the dead ends set
     }
 }
+
+
 
 void Ship::placeLeak(int x, int y) {
     if (x >= 0 && x < dimensions && y >= 0 && y < dimensions) {
@@ -104,14 +90,18 @@ void Ship::plugLeakAt(int x, int y) {
     }
 }
 
-std::vector<std::pair<int, int>> Ship::getNeighbors(int x, int y) {
+std::vector<std::pair<int, int>> Ship::getNeighbors(int x, int y) const {
     std::vector<std::pair<int, int>> neighbors;
-    if (x > 0) neighbors.emplace_back(x - 1, y);
-    if (y > 0) neighbors.emplace_back(x, y - 1);
-    if (x < dimensions - 1) neighbors.emplace_back(x + 1, y);
-    if (y < dimensions - 1) neighbors.emplace_back(x, y + 1);
+    
+    // Adjust the conditions to exclude perimeter positions
+    if (x > 1) neighbors.emplace_back(x - 1, y);           // Exclude left perimeter
+    if (y > 1) neighbors.emplace_back(x, y - 1);           // Exclude top perimeter
+    if (x < dimensions - 2) neighbors.emplace_back(x + 1, y); // Exclude right perimeter
+    if (y < dimensions - 2) neighbors.emplace_back(x, y + 1); // Exclude bottom perimeter
+    
     return neighbors;
 }
+
 
 std::vector<std::pair<int, int>> Ship::getOpenNeighbors(int x, int y) {
     std::vector<std::pair<int, int>> openNeighbors;
@@ -124,5 +114,61 @@ std::vector<std::pair<int, int>> Ship::getOpenNeighbors(int x, int y) {
     return openNeighbors;
 }
 
+std::vector<std::vector<int>> Ship::getGrid() const {
+    // Actual implementation that returns the grid.
+    // For example:
+    return this->grid; // Assuming 'grid' is a class member of type std::vector<std::vector<int>>
+}
+
+
+void Ship::normalizeGrid() {
+    for (int i = 0; i < dimensions; ++i) {
+        for (int j = 0; j < dimensions; ++j) {
+            if (grid[i][j] >= 0) {
+                grid[i][j] = CLOSED;
+            } else if (grid[i][j] == -1) {
+                grid[i][j] = OPEN;
+            }
+        }
+    }
+}
+
+std::set<std::pair<int, int>> Ship::get_dead_ends() {
+    std::set<std::pair<int, int>> dead_ends;
+    for (int i = 1; i < dimensions - 1; ++i) {
+        for (int j = 1; j < dimensions - 1; ++j) {
+            if (grid[i][j] == OPEN && is_dead_end(i, j)) {
+                // Assuming get_closed_neighbors() is a method that returns closed neighbors
+                auto closed_neighbors = get_closed_neighbors(i, j);
+                for (const auto& neighbor : closed_neighbors) {
+                    dead_ends.insert(neighbor);
+                }
+            }
+        }
+    }
+    return dead_ends;
+}
+
+bool Ship::is_dead_end(int x, int y) const {
+    std::vector<std::pair<int, int>> neighbors = getNeighbors(x, y);
+    int open_count = 0;
+    for (const auto& pos : neighbors) {
+        if (grid[pos.first][pos.second] == OPEN) {
+            ++open_count;
+        }
+    }
+    return open_count == 1; // A dead end has exactly one open neighbor
+}
+
+std::vector<std::pair<int, int>> Ship::get_closed_neighbors(int x, int y) {
+    std::vector<std::pair<int, int>> closed_neighbors;
+    auto neighbors = getNeighbors(x, y);
+    for (const auto& n : neighbors) {
+        if (grid[n.first][n.second] != OPEN) {
+            closed_neighbors.push_back(n);
+        }
+    }
+    return closed_neighbors;
+}
 
 
