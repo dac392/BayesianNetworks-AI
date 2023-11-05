@@ -4,9 +4,30 @@ std::string getType(){
     return "Deterministic";
 }
 
-bool scan(int x, int y) {
+bool DeterministicBot::scan(std::vector<std::pair<int, int>> leaks) {
+    // Get the sensor's range for checking leaks
+    int sensorRange = this->getSensor().getRange();
+    
+    // Iterate over each leak in the list
+    for (const auto& leak : leaks) {
+        // Calculate the Manhattan distance from the bot's current position to the leak's position
+        int leakX = leak.first;
+        int leakY = leak.second;
+        int distance = std::abs(leakX - currentPosition.first) + std::abs(leakY - currentPosition.second);
+        
+        // Check if the leak is within the sensor range
+        if (distance <= sensorRange) {
+            // If the leak is detected, return true
+            return true;
+        }
+    }
+    
+    // If no leaks were detected within range, return false
     return false;
 }
+
+
+
 void performAction()  {
 
 }

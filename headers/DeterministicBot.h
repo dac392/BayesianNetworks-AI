@@ -9,7 +9,7 @@ public:
     using Bot::Bot;
 
     std::string getType() override;
-    bool scan(int x, int y) override;
+    bool scan(std::vector<std::pair<int, int>> leaks) override;
     void performAction() override;
     std::vector<std::pair<int, int>> DeterministicBot::getSpawnRadius();
 
