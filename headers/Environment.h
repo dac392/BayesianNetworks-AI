@@ -18,7 +18,6 @@ private:
 
 public:
     Environment(int shipSize, int range_mod, int alpha);
-    ~Environment();
 
     void addBot(std::string type, std::string id);
     void runSimulation();
