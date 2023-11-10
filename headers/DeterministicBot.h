@@ -7,7 +7,8 @@
 class DeterministicBot : public Bot {
 
 public:
-    using Bot::Bot;
+    // using Bot::Bot;
+    DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb);
 
     std::string getType() override;
     bool scan(std::vector<std::pair<int, int>> leaks) override;
@@ -15,7 +16,7 @@ public:
     std::vector<std::pair<int, int>> updatePosiblePositions() override;
     void moveToNextLocation() override;
 
-    std::vector<std::pair<int, int>> DeterministicBot::getSpawnRadius();
+    std::vector<std::pair<int, int>> getSpawnRadius();
 
 };
 

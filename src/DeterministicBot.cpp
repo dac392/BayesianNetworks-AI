@@ -1,5 +1,10 @@
 #include "../headers/DeterministicBot.h"
 
+DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
+    : Bot(startPos, range_mod, alpha, id, dumb) {
+    // ... additional initialization ...
+}
+
 std::string getType(){
     return "Deterministic";
 }
