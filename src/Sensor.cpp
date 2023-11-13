@@ -1,26 +1,23 @@
 #include "../headers/Sensor.h"
 #include <random>
+#include <iostream>
 
 // Constructor implementation
-Sensor::Sensor(int range_mod, int alpha) 
-    : k(range_mod), 
-      generator(std::random_device{}()), distribution(0.0f, 1.0f) {
-        range = (2*k+1) + (2*k+1);
-      }
+Sensor::Sensor(int range_mod, int alpha)
+    : k(range_mod),alpha(alpha),
+    generator(std::random_device{}()), distribution(0.0f, 1.0f) {
+    range = (2*k+1);
+}
 
 // detect method implementation
 bool Sensor::detect(int distance) {
-    if (distance > range) {
-        // If the leak is outside the range of the sensor, it cannot be detected
-        return false;
-    }
-
-    // Calculate the probability of detection based on the distance
-    float probabilityOfDetection = probabilityModel * (range - distance) / range;
-
-    // Generate a random number and compare it to the detection probability
+    float probabilityOfDetection = std::exp(-alpha * (distance - 1));
     float randomValue = distribution(generator);
-    return randomValue < probabilityOfDetection;
+    return randomValue <= probabilityOfDetection;
+}
+
+float Sensor::getProbability(int distance){
+    return std::exp(-alpha * (distance - 1));
 }
 
 // Getter for range
@@ -34,11 +31,6 @@ void Sensor::setRange(int newRange) {
 }
 
 // Getter for probabilityModel
-float Sensor::getProbabilityModel() const {
-    return probabilityModel;
-}
-
-// Setter for probabilityModel
-void Sensor::setProbabilityModel(float newProbabilityModel) {
-    probabilityModel = newProbabilityModel;
+float Sensor::getAlpha() const {
+    return alpha;
 }
