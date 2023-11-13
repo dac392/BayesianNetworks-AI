@@ -1,118 +1,106 @@
 #include "../headers/DeterministicBot.h"
-
 DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
     : Bot(startPos, range_mod, alpha, id, dumb) {
     // ... additional initialization ...
 }
 
-std::string getType(){
+bool DeterministicBot::performScan(Ship& ship){
+    return scan(ship.getPositionOfLeaks());
+}
+void DeterministicBot::performDetected(Ship& ship){
+    removePositionsOutOfRange();
+}
+void DeterministicBot::performNotDetected(Ship& ship){
+
+    ship.markAsSeen(currentPosition, sensor.getRange());
+    removePositionsInRange();
+
+}
+
+
+std::string DeterministicBot::getType(){
     return "Deterministic";
 }
 
 bool DeterministicBot::scan(std::vector<std::pair<int, int>> leaks) {
     totalActions++;
+    bool leakDetected = false;
+
     // Get the sensor's range for checking leaks
     int sensorRange = this->getSensor().getRange();
-    
-    // Iterate over each leak in the list
+
+    pointsWhereIScanned.emplace_back(currentPosition);
+
+    // Calculate the bounds of the sensor range
+    int startX = currentPosition.first - sensorRange;
+    int endX = currentPosition.first + sensorRange;
+    int startY = currentPosition.second - sensorRange;
+    int endY = currentPosition.second + sensorRange;
+
+    // Add all positions within sensor range to the path
+    for (int x = startX; x <= endX; ++x) {
+        for (int y = startY; y <= endY; ++y) {
+            int distance = std::abs(x - currentPosition.first) + std::abs(y - currentPosition.second);
+            if (distance <= sensorRange) {
+                path.emplace_back(x, y);  // Add position to path
+            }
+        }
+    }
+
+    // Check for leaks within the sensor range
     for (const auto& leak : leaks) {
-        // Calculate the Manhattan distance from the bot's current position to the leak's position
         int leakX = leak.first;
         int leakY = leak.second;
         int distance = std::abs(leakX - currentPosition.first) + std::abs(leakY - currentPosition.second);
-        
-        // Check if the leak is within the sensor range
+
         if (distance <= sensorRange) {
-            // If the leak is detected, return true
-            return true;
+            leakDetected = true;
+            break;  // No need to continue checking once a leak is found
         }
     }
-    
-    // If no leaks were detected within range, return false
-    return false;
+
+    return leakDetected;
 }
 
-std::vector<std::pair<int, int>>  DeterministicBot::getPosibleLeakPositions(){
+
+void  DeterministicBot::removePositionsOutOfRange(){
     std::vector<std::pair<int, int>> possibleLeakPositions;
-
-    // Get the detection range from the sensor
-    int detectionRange = this->getSensor().getRange();
-
-    // Loop through all open positions
-    for (const auto& pos : openPositions) {
-        // Calculate the Manhattan distance from the current position to pos
-        int distance = std::abs(pos.first - currentPosition.first) + std::abs(pos.second - currentPosition.second);
-        
-        // If the distance is less than or equal to the detection range, add it to possibleLeakPositions
-        if (distance <= detectionRange) {
-            possibleLeakPositions.push_back(pos);
-        }
-    }
-
-    if (!dumb) {
-        // Remove all positions in possibleLeakPositions from openPositions
         openPositions.erase(
             std::remove_if(
-                openPositions.begin(), 
-                openPositions.end(), 
+                openPositions.begin(),
+                openPositions.end(),
                 [&possibleLeakPositions](const std::pair<int, int>& pos) {
                     return std::find(possibleLeakPositions.begin(), possibleLeakPositions.end(), pos) != possibleLeakPositions.end();
                 }
-            ),
+                ),
             openPositions.end()
-        );
-    }else{
-        active = false;
-    }
+            );
 
-    return possibleLeakPositions;
 }
 
 
-std::vector<std::pair<int, int>> DeterministicBot::updatePosiblePositions() {
-    
+void DeterministicBot::removePositionsInRange() {
+
     // Get the detection range from the sensor
     int detectionRange = this->getSensor().getRange();
 
     // Use the erase-remove idiom to remove positions within the detection range from openPositions
     openPositions.erase(
-        std::remove_if(openPositions.begin(), openPositions.end(), 
+        std::remove_if(openPositions.begin(), openPositions.end(),
                        [this, detectionRange](const std::pair<int, int>& pos) {
                            // Calculate the Manhattan distance
-                           int distance = std::abs(pos.first - currentPosition.first) 
-                                        + std::abs(pos.second - currentPosition.second);
+                           int distance = std::abs(pos.first - currentPosition.first)
+                                          + std::abs(pos.second - currentPosition.second);
                            // If the distance is less than or equal to detection range, we should remove it
                            return distance <= detectionRange;
                        }),
         openPositions.end()
-    );
+        );
 
-    // Since openPositions has been updated, just return it
-    return openPositions;
 }
 
-void DeterministicBot::moveToNextLocation() {
-    if (openPositions.empty()) {
-        return;
-    }
-
-    // Initialize minimum distance with the maximum possible value
-    int minDistance = std::numeric_limits<int>::max();
-    std::vector<std::pair<int, int>> candidates;
-
-    // Find the minimum distance to an open position
-    for (const auto& pos : openPositions) {
-        int distance = std::abs(pos.first - currentPosition.first) + std::abs(pos.second - currentPosition.second);
-        if (distance < minDistance) {
-            minDistance = distance;
-            // Reset candidates as we found a closer distance
-            candidates.clear();
-            candidates.push_back(pos);
-        } else if (distance == minDistance) {
-            // Add position to candidates as it has the same minimum distance
-            candidates.push_back(pos);
-        }
-    }
+void DeterministicBot::moveToNextLocation(Ship& ship) {
+    std::vector<std::pair<int, int>> candidates = ship.getClosestReachable(currentPosition, openPositions);
 
     // Choose a random position from the candidates
     if (!candidates.empty()) {
@@ -123,9 +111,23 @@ void DeterministicBot::moveToNextLocation() {
 
         std::pair<int, int> nextLocation = candidates.front(); // Take the first after shuffling
 
-        totalActions += minDistance; // Add the minimum distance to total actions
+
+        totalActions += ship.getDistanceFrom(currentPosition, nextLocation); // Add the minimum distance to total actions
+        ship.markAsSeen(nextLocation, -1);
         currentPosition = nextLocation; // Move to the chosen position
+        if(ship.canPlugLeak(currentPosition)){
+            bool done = ship.plugLeak(currentPosition);
+            if(done){
+                active = false;
+            }else{
+                openPositions = ship.bot5Correction();
+            }
+        }
+
+
     }
+
+
 }
 
 
@@ -133,7 +135,7 @@ void DeterministicBot::moveToNextLocation() {
 
 std::vector<std::pair<int, int>> DeterministicBot::getSpawnRadius() {
     std::vector<std::pair<int, int>> spawnRadius;
-    
+
     // Get the range of the sensor which defines the radius 'k'
     int k = this->getSensor().getRange();
 
