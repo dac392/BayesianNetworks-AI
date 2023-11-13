@@ -1,7 +1,7 @@
 #include "../headers/Environment.h"
-#include "Utility.h"
-#include "DeterministicBot.h"
-#include "ProbabilisticBot.h"
+#include "../headers/Utility.h"
+#include "../headers/DeterministicBot.h"
+#include "../headers/ProbabilisticBot.h"
 
 #include <stdexcept>
 #include <iostream>
