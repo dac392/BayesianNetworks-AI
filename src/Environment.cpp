@@ -101,11 +101,8 @@ void Environment::addBot(std::string type, std::string id, bool mode) {
 
 
 void Environment::runSimulation() {
-    // Logic to run the simulation with bots and the ship
-    // This will typically involve iterating over the bots and invoking their behavior
 
     for (auto& bot : bots) {
-
         if(bot->getType() == "Deterministic"){
             DeterministicBot* detBot = dynamic_cast<DeterministicBot*>(bot.get());
             ship.addLeak(detBot->getSpawnRadius());
@@ -113,8 +110,6 @@ void Environment::runSimulation() {
                 ship.addLeak(detBot->getSpawnRadius());
             }
         }else if(bot->getType() == "Probabilistic"){
-
-            ship.probabilisticStart(bot->getOpenPositions(), bot->getID());
             std::vector<std::pair<int, int>> idk;
             ship.addLeak(idk);
             if(!bot->isDumb()){
@@ -152,7 +147,6 @@ void Environment::runTestSimulation(){
         if(ship.firstRoundTest()){
 //            DeterministicBot* detBot = dynamic_cast<DeterministicBot*>(bot.get());
 //            ship.addLeak(detBot->getSpawnRadius());
-            ship.probabilisticStart(bot->getOpenPositions(), bot->getID());
             std::vector<std::pair<int, int>> idk;
             ship.addLeak(idk);
             if(!bot->isDumb()){

@@ -4,6 +4,9 @@
 #include "Bot.h"
 
 class ProbabilisticBot : public Bot {
+private:
+    Probability bayesian_network;
+
 public:
     ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb);
     std::string getType() override;

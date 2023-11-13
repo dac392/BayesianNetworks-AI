@@ -3,9 +3,10 @@
 #include "Utility.h"
 #include <stdexcept>
 
+// hardcoding dimensions of 50x50 on bayesian network;
 ProbabilisticBot::ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
-    : Bot(startPos, range_mod, alpha, id, dumb) {
-    // ... additional initialization for ProbabilisticBot ...
+    : Bot(startPos, range_mod, alpha, id, dumb), bayesian_network(50) {
+        bayesian_network.init(openPositions, (id=="bot9" || id=="bot8"));
 }
 
 std::string ProbabilisticBot::getType(){
@@ -65,16 +66,16 @@ void ProbabilisticBot::correctedUpdate(Ship& ship, bool signalDetected){
             float probabilityOfBeep = P_beep_ki + P_beep_kj - P_given_ij;
 
             if(signalDetected){
-                ship.scaleBayesianPair(i, j, probabilityOfBeep);
+                bayesian_network.scaleBayesianPair(i, j, probabilityOfBeep);
             }else{
-                ship.scaleBayesianPair(i, j , 1-probabilityOfBeep);
+                bayesian_network.scaleBayesianPair(i, j , 1-probabilityOfBeep);
             }
 
-            normFactor += ship.getPairProbabilityAt(i, j);
+            normFactor += bayesian_network.getPairProbabilityAt(i, j);
         }
     }
 
-    ship.normalizeNetwork(openPositions, normFactor);
+    bayesian_network.normalizePairs(openPositions, normFactor);
 
 }
 
@@ -86,16 +87,16 @@ void ProbabilisticBot::updateProbabilities(Ship& ship, bool signalDetected){
         int distance = ship.getDistanceFrom(currentPosition, pos);
         float probabilityOfBeep = sensor.getProbability(distance);
         if(signalDetected){
-            ship.scaleGridPosition(pos, probabilityOfBeep);
+            bayesian_network.scaleProbabilities(pos, probabilityOfBeep);
         }else{
-            ship.scaleGridPosition(pos, 1-probabilityOfBeep);
+            bayesian_network.scaleProbabilities(pos, 1-probabilityOfBeep);
         }
 
-        sumProbabilities+=ship.getProbabilityAt(pos);
+        sumProbabilities+=bayesian_network.getProbabilityAt(pos);
     }
 
 
-    ship.normalizeProbabilities(sumProbabilities);
+    bayesian_network.normalizeProbabilities(sumProbabilities);
 
 
 }
@@ -116,9 +117,10 @@ void ProbabilisticBot::intelligentStep(Ship& ship){
     std::vector<std::pair<int, int>> candidates;
 
     if(ship.almostDone()){
-        candidates = ship.getIntelligentStep(currentPosition);
+        candidates = bayesian_network.getIntelligentStep(currentPosition);
     }else{
-        candidates = ship.getMostProbable(currentPosition, openPositions);
+        std::vector<std::pair<int, int>> allMostProbable = bayesian_network.getHighestProbabilityList();
+        candidates = ship.getMostProbable(currentPosition, allMostProbable);
     }
 
 
@@ -141,10 +143,10 @@ void ProbabilisticBot::intelligentStep(Ship& ship){
         }
         if(foundLeak){
             // remove double probability not containing current
-            ship.removeInversePossibility(currentPosition);
+            bayesian_network.narrowDownSearchSpace(currentPosition);
         }else{
             // remove double probability
-            ship.removePossibility(currentPosition);
+            bayesian_network.remove(currentPosition);
         }
 
         //ship.normalizePairs(openPositions);// no longer needed, I am doing this inside of remove now // this can difinitely be optimized; also might have to change how you normalize; check when not drunk
@@ -154,9 +156,9 @@ void ProbabilisticBot::intelligentStep(Ship& ship){
         path.emplace_back(pos);
 
         // update normal probabilities
-        float prob = ship.getProbabilityAt(currentPosition);
+        float prob = bayesian_network.getProbabilityAt(currentPosition);
         float norm = prob/openPositions.size();     // this doesn't feel right; double check real quick
-        ship.updateProbabilities(currentPosition, norm);
+        bayesian_network.updateProbabilities(currentPosition, norm);
 
         totalActions+=1;
 
@@ -182,9 +184,9 @@ void ProbabilisticBot::naiveNextStep(Ship& ship){
         }
         Utility::removePosition(openPositions, currentPosition);
         path.emplace_back(pos);
-        float prob = ship.getProbabilityAt(currentPosition);
+        float prob = bayesian_network.getProbabilityAt(currentPosition);
         float norm = prob/openPositions.size();
-        ship.updateProbabilities(currentPosition, norm);
+        bayesian_network.updateProbabilities(currentPosition, norm);
         totalActions+=1;
     }
 

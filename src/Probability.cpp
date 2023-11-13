@@ -102,11 +102,11 @@ void Probability::normalizePairs(const std::vector<std::pair<int, int>>& open, f
     }
 }
 
-float Probability::getProbabilityAt(std::pair<int, int>& pos){
+float Probability::getProbabilityAt(const std::pair<int, int>& pos){
     return probability_matrix[pos.first][pos.second];
 }
 
-void Probability::scaleProbabilities(std::pair<int, int>& pos, float modifier){
+void Probability::scaleProbabilities(const std::pair<int, int>& pos, float modifier){
     probability_matrix[pos.first][pos.second]*=modifier;
 }
 
@@ -127,10 +127,6 @@ void Probability::remove(const std::pair<int, int>& current){
 void Probability::narrowDownSearchSpace(const std::pair<int, int>& current){
     table.narrowDownSearchSpace(current);
 }
-
-//void Probability::normalizePairs(const std::vector<std::pair<int, int>>& open){
-//    table.normalizePairs(open);
-//}
 
 float Probability::getPairProbabilityAt(const std::pair<int, int>& i, const std::pair<int, int>& j){
     return table.get(i, j);

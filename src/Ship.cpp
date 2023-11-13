@@ -18,7 +18,7 @@
 #define EXPLORED 3
 
 
-Ship::Ship(int size) : dimensions(size), grid(size, std::vector<int>(size, 0)), bayesian_network(size),
+Ship::Ship(int size) : dimensions(size), grid(size, std::vector<int>(size, 0)),
     rng(std::chrono::system_clock::now().time_since_epoch().count()) {
     initializeGrid();
     distanceTable.init(grid);
@@ -80,39 +80,8 @@ bool contains(const std::vector<std::pair<int, int>>& vec, const std::pair<int, 
     return std::find(vec.begin(), vec.end(), element) != vec.end();
 }
 
-
-
-void Ship::scaleGridPosition(std::pair<int, int>& pos, float modifier){
-    bayesian_network.scaleProbabilities(pos, modifier);
-}
-
-void Ship::scaleBayesianPair(const std::pair<int,int>& x, const std::pair<int, int>& y, float mod){
-    bayesian_network.scaleBayesianPair(x, y, mod);
-}
-
-float Ship::getProbabilityAt(std::pair<int, int>& pos){
-    return bayesian_network.getProbabilityAt(pos);
-}
-
-void Ship::normalizeProbabilities(float modifier){
-    bayesian_network.normalizeProbabilities(modifier);
-}
-
-void Ship::normalizeNetwork(const std::vector<std::pair<int, int>>& open, float factor){
-    bayesian_network.normalizePairs(open, factor);
-}
-
-
-void Ship::updateProbabilities(std::pair<int, int>& pos, float norm){
-    bayesian_network.updateProbabilities(pos, norm);
-}
-
 int Ship::getDistanceFrom(const std::pair<int, int>& start, const std::pair<int, int>& end){
     return distanceTable.getDistance(start, end);
-}
-
-float Ship::getPairProbabilityAt(const std::pair<int, int>& i, const std::pair<int, int>& j){
-    return bayesian_network.getPairProbabilityAt(i, j);
 }
 
 
@@ -140,46 +109,11 @@ std::vector<std::pair<int, int>> Ship::getClosestReachable(const std::pair<int, 
 
 
 
-std::vector<std::pair<int, int>> Ship::getMostProbable(std::pair<int, int> current, std::vector<std::pair<int, int>>& open) {
-    // Step 1: Get the most probable positions list
-    std::vector<std::pair<int, int>> mostProbable = getHighestProbabilityList();
-
+std::vector<std::pair<int, int>> Ship::getMostProbable(const std::pair<int, int>& current, std::vector<std::pair<int, int>>& mostProbable) {
     std::vector<std::pair<int, int>> closestPositions;
-    int minimumDistance = std::numeric_limits<int>::max();
-
-    // Step 2 and 3: Find the closest positions by overall distance from current
-    for (const auto& position : mostProbable) {
-        if (contains(open, position)) {
-            int distance = getDistanceFrom(current, position);
-            if (distance != -1 && distance <= minimumDistance) {
-                // Update minimum distance and clear positions that are not the closest
-                if (distance < minimumDistance) {
-                    closestPositions.clear();
-                    minimumDistance = distance;
-                }
-                closestPositions.push_back(position);
-            }
-        }
-    }
-    // Step 4: Return the most probable positions with the closest distance
-    return closestPositions;
+    return distanceTable.getClosestPositions(current, mostProbable);
 }
 
-std::vector<std::pair<int, int>> Ship::getIntelligentStep(std::pair<int, int> current){
-    return bayesian_network.getIntelligentStep(current);
-}
-
-std::vector<std::pair<int, int>> Ship::getHighestProbabilityList() {
-    return bayesian_network.getHighestProbabilityList();
-}
-
-void Ship::removePossibility(const std::pair<int, int>& current){
-    bayesian_network.remove(current);
-}
-
-void Ship::removeInversePossibility(const std::pair<int, int>& current){
-    bayesian_network.narrowDownSearchSpace(current);
-}
 
 
 std::vector<std::pair<int, int>> Ship::getShortestPath(std::pair<int, int> start, std::pair<int, int> goal) {
@@ -228,10 +162,6 @@ bool Ship::positionIsOpen(int i, int j){
     return grid[i][j] !=CLOSED;
 }
 
-std::vector<std::vector<float>> Ship::getProbabilities(){
-    return bayesian_network.getProbabilities();
-}
-
 bool Ship::isPositionOpen(int i, int j, const std::vector<std::pair<int, int>>& open) {
     // Check if position is within the grid boundaries
     if (i < 0 || i >= grid.size() || j < 0 || j >= grid[0].size()) return false;
@@ -266,11 +196,6 @@ std::vector<std::pair<int, int>> Ship::reset() {
     leaks.clear(); // Clear the leaks after fixing them
 
     return fixedLeaks; // Return the vector of fixed leaks
-}
-
-void Ship::probabilisticStart(const std::vector<std::pair<int, int>>& open, std::string id){
-
-    bayesian_network.init(open, (id=="bot9" || id=="bot8"));
 }
 
 std::vector<std::pair<int, int>> Ship::getNeighbors(int x, int y) const {
@@ -419,35 +344,5 @@ bool Ship::almostDone(){
 
     return count == 1;
 }
-
-std::vector<std::pair<int, int>> Ship::bot5Correction(){
-    std::vector<std::pair<int, int>> openList;
-    for(int i = 0; i < dimensions; i++){
-        for(int j = 0; j < dimensions; j++){
-            if(grid[i][j] == OPEN){
-                std::pair<int, int> p(i, j);
-                openList.emplace_back(p);
-            }
-        }
-    }
-
-    return openList;
-}
-
-// void Ship::markAsSeen(const std::pair<int, int>& start, int range){
-//     if(range < 0){
-//         if( grid[start.first][start.second] == OPEN){
-//             grid[start.first][start.second] = EXPLORED;
-//         }
-//         return;
-//     }
-
-//     std::vector<std::pair<int,int>> positionsSeen = distanceTable.getPositionsInRange(start, range);
-//     for(const auto& pos : positionsSeen){
-//         if(grid[pos.first][pos.second] == OPEN){
-//             grid[pos.first][pos.second] = EXPLORED;
-//         }
-//     }
-// }
 
 

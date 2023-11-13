@@ -24,8 +24,6 @@ public:
     void normalizeProbabilities(float modifier);
     float getProbabilityAt(const std::pair<int, int>& pos);
     void scaleProbabilities(const std::pair<int, int>& pos, float modifier);
-    float getProbabilityAt(std::pair<int, int>& pos);
-    void scaleProbabilities(std::pair<int, int>& pos, float modifier);
     void scaleBayesianPair(const std::pair<int,int>& x, const std::pair<int, int>& y, float mod);
     void normalizePairs(const std::vector<std::pair<int, int>>& open, float factor);
     std::vector<std::pair<int, int>> getIntelligentStep(std::pair<int, int> current);
