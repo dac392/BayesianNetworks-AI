@@ -4,10 +4,6 @@ Leak::Leak(std::pair<int, int> position) : position(position), state(true) {
     // The constructor initializes the leak with the provided location and sets the state to true (active)
 }
 
-Leak::~Leak() {
-    // The destructor currently does not need to do anything special
-}
-
 std::pair<int,int> Leak::getPosition() const{
     return position;
 }
