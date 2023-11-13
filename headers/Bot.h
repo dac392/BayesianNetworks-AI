@@ -2,6 +2,7 @@
 #define BOT_H
 
 #include "Sensor.h"
+#include "Ship.h"
 #include <string>
 #include <utility>
 #include <vector>
@@ -12,16 +13,21 @@ protected:
     bool active;
     int totalActions;
     std::string id;
+    std::pair<int, int> initialPosition;
     std::pair<int, int> currentPosition;
     std::vector< std::pair<int, int> > openPositions;
     std::vector<std::pair<int, int>> goalPositions;
+    std::vector<std::pair<int, int>> path;
+    std::vector<std::pair<int, int>> pointsWhereIScanned;
     Sensor sensor;
 
     // Protected constructor to be called by derived classes
     Bot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
-        : currentPosition(startPos), sensor(range_mod, alpha), id(id), dumb(dumb) {
-            active = true;
-        }
+        : currentPosition(startPos), initialPosition(startPos), sensor(range_mod, alpha), id(id), dumb(dumb) {
+        active = true;
+        totalActions=0;
+
+    }
 
 public:
     virtual ~Bot() = default;
@@ -39,16 +45,19 @@ public:
         return dumb;
     }
 
-    virtual std::string getType() = 0;
+
 
     // Still pure virtual as the implementation is likely to be different in derived classes
-    virtual bool scan(std::vector<std::pair<int, int>> leaks) = 0;
-    virtual std::vector<std::pair<int, int>> getPosibleLeakPositions() = 0;
-    virtual std::vector<std::pair<int, int>> updatePosiblePositions() = 0;
-    virtual void moveToNextLocation() = 0;
+    virtual void moveToNextLocation(Ship& ship) = 0;
+    virtual std::string getType() = 0;
+
+    virtual bool performScan(Ship& ship)=0;
+    virtual void performDetected(Ship& ship)=0;
+    virtual void performNotDetected(Ship& ship)=0;
 
     virtual void setLeakPositions(std::vector<std::pair<int, int>> positions){
-        goalPositions = positions;
+        if(!positions.empty())
+            goalPositions = positions;
     }
 
     // Accessor methods can be implemented here as they're likely to be common
@@ -58,6 +67,33 @@ public:
 
     virtual Sensor& getSensor() {
         return sensor;
+    }
+
+    virtual std::vector<std::pair<int, int>> getGoalPositions(){
+        return goalPositions;
+    }
+
+    virtual std::vector<std::pair<int, int>>& getOpenPositions(){
+        return openPositions;
+    }
+
+    virtual std::string getID(){
+        return id;
+    }
+
+    virtual std::pair<int, int> getInitialPosition(){
+        return initialPosition;
+    }
+
+    virtual std::vector<std::pair<int, int>> getPathTaken(){
+        return path;
+    }
+    virtual std::vector<std::pair<int, int>> getPointsScanned(){
+        return pointsWhereIScanned;
+    }
+
+    virtual int getTotalDistance(){
+        return totalActions;
     }
 
     // If populateOpenPositions is common, it can be implemented here
