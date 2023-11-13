@@ -25,10 +25,6 @@ Ship::Ship(int size) : dimensions(size), grid(size, std::vector<int>(size, 0)), 
 
 }
 
-Ship::~Ship() {
-    // No dynamic allocation used, so no need for a custom destructor
-}
-
 bool Ship::hasLeaks(){
     for(const auto& leak : leaks){
         if(leak.isActive()){

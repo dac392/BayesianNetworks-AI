@@ -9,10 +9,9 @@
 
 Environment::Environment(int shipSize, int range_mod, int alpha)
     : ship(shipSize), range_mod(range_mod), alpha(alpha) {
-    // Initialize ship and other environment-specific setup
 }
 
-std::string Environment::getDistanceFor(std::string id){
+std::string Environment::getDistanceFor(const std::string& id){
     for(const auto& bot: bots){
         if(bot->getID() == id){
             return std::to_string(bot->getTotalDistance());

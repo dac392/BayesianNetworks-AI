@@ -10,7 +10,6 @@ private:
 
 public:
     Leak(std::pair<int, int> position); // Constructor that initializes the location and state of the leak
-    ~Leak(); // Destructor
 
     // Accessor methods
     std::pair<int,int> getPosition() const;

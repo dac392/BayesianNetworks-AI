@@ -23,7 +23,7 @@ protected:
 
     // Protected constructor to be called by derived classes
     Bot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
-        : currentPosition(startPos), initialPosition(startPos), sensor(range_mod, alpha), id(id), dumb(dumb) {
+        : dumb(dumb), id(id), initialPosition(startPos), currentPosition(startPos), sensor(range_mod, alpha) {
         active = true;
         totalActions=0;
 
@@ -31,8 +31,14 @@ protected:
 
 public:
     virtual ~Bot() = default;
+    // Still pure virtual as the implementation is likely to be different in derived classes
+    virtual void moveToNextLocation(Ship& ship) = 0;
+    virtual std::string getType() = 0;
 
-    // Common method implementations can be moved here if they're identical across derived classes
+    virtual bool performScan(Ship& ship)=0;
+    virtual void performDetected(Ship& ship)=0;
+    virtual void performNotDetected(Ship& ship)=0;
+
     virtual void move(int x, int y) {
         currentPosition = {x, y};
     }
@@ -44,16 +50,6 @@ public:
     virtual bool isDumb(){
         return dumb;
     }
-
-
-
-    // Still pure virtual as the implementation is likely to be different in derived classes
-    virtual void moveToNextLocation(Ship& ship) = 0;
-    virtual std::string getType() = 0;
-
-    virtual bool performScan(Ship& ship)=0;
-    virtual void performDetected(Ship& ship)=0;
-    virtual void performNotDetected(Ship& ship)=0;
 
     virtual void setLeakPositions(std::vector<std::pair<int, int>> positions){
         if(!positions.empty())
@@ -100,8 +96,8 @@ public:
     virtual void populateOpenPositions(const std::vector<std::vector<int>>& grid) {
         openPositions.clear();
 
-        for (int i = 0; i < grid.size(); ++i) {
-            for (int j = 0; j < grid[i].size(); ++j) {
+        for (auto i = 0; i < static_cast<int>(grid.size()); ++i) {
+            for (auto j = 0; j < static_cast<int>(grid[i].size()); ++j) {
                 if (grid[i][j] == 0 && !(currentPosition.first == i && currentPosition.second == j)) {
                     openPositions.emplace_back(i, j);
                 }

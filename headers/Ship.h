@@ -28,10 +28,6 @@ private:
     std::vector<Leak> leaks;
     std::default_random_engine rng;
 
-
-
-
-
     std::vector<std::pair<int, int>> getNeighbors(int x, int y) const;
     std::vector<std::pair<int, int>> getOpenNeighbors(int x, int y);
     void normalizeGrid();
@@ -39,11 +35,9 @@ private:
     std::set<std::pair<int, int>> get_dead_ends();
     std::vector<std::pair<int, int>> get_closed_neighbors(int x, int y);
     void eliminate_dead_ends(std::set<std::pair<int, int>>& dead_ends);
-    bool isTraversable(int row, int col);
 
 public:
     explicit Ship(int size = 50);
-    ~Ship();
     bool isPositionOpen(int i, int j, const std::vector<std::pair<int, int>>& open);
     void initializeGrid();
     void addLeak(const std::vector<std::pair<int, int>>& blockedPositions);
