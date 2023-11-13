@@ -6,6 +6,8 @@
 
 class DeterministicBot : public Bot {
 
+private:
+    std::vector<std::pair<int, int>> not_yet_explored;
 public:
     //using Bot::Bot;
     DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb);
@@ -18,6 +20,7 @@ public:
 
     std::vector<std::pair<int, int>> getSpawnRadius();
     bool scan(std::vector<std::pair<int, int>> leaks);
+    void recordDifference();
     void removePositionsOutOfRange();
     void removePositionsInRange();
 

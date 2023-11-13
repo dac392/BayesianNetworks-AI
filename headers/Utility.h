@@ -10,7 +10,7 @@ class Utility {
 public:
     static std::pair<int, int> generateCoordinate();
     static std::string hashFunction(const std::pair<int, int>& p);
-    static int heuristic(std::pair<int, int>& a, std::pair<int, int>& b);
+    static int heuristic(const std::pair<int, int>& a, const std::pair<int, int>& b);
     static std::pair<int, int> shufflePositions(std::vector<std::pair<int, int>>& positions);
     static void removePosition(std::vector<std::pair<int, int>>& vec, const std::pair<int, int>& elem);
 };

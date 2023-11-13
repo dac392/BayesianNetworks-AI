@@ -27,7 +27,7 @@ std::string Utility::hashFunction(const std::pair<int, int>& p) {
     return "(" + std::to_string(p.first) + ", " + std::to_string(p.second) + ")";
 }
 
-int Utility::heuristic(std::pair<int, int>& a, std::pair<int, int>& b) {
+int Utility::heuristic(const std::pair<int, int>& a, const std::pair<int, int>& b) {
     return std::abs(a.first - b.first) + std::abs(a.second - b.second);
 }
 

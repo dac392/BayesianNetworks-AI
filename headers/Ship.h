@@ -52,7 +52,7 @@ public:
     std::vector<std::pair<int, int>> getClosestReachable(const std::pair<int, int>& current, const std::vector<std::pair<int, int>>& open);
     int getDistanceFrom(const std::pair<int, int>& start, const std::pair<int, int>& goal);
     std::vector<std::pair<int, int>> bot5Correction();
-    void markAsSeen(const std::pair<int, int>& start, int range);
+    //void markAsSeen(const std::pair<int, int>& start, int range);
 
     bool positionIsOpen(int i, int j);
     void scaleGridPosition(std::pair<int, int>& pos, float modifier);

@@ -18,6 +18,8 @@ public:
     Environment(int shipSize, int range_mod, int alpha);
 
     void addBot(std::string type, std::string id, bool mode);
+    void start();
+    void individualSimulation();
     void runSimulation();
     void runTestSimulation();
     std::vector<std::vector<int>> getGridFor(const std::string& id);

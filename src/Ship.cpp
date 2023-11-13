@@ -434,20 +434,20 @@ std::vector<std::pair<int, int>> Ship::bot5Correction(){
     return openList;
 }
 
-void Ship::markAsSeen(const std::pair<int, int>& start, int range){
-    if(range < 0){
-        if( grid[start.first][start.second] == OPEN){
-            grid[start.first][start.second] = EXPLORED;
-        }
-        return;
-    }
+// void Ship::markAsSeen(const std::pair<int, int>& start, int range){
+//     if(range < 0){
+//         if( grid[start.first][start.second] == OPEN){
+//             grid[start.first][start.second] = EXPLORED;
+//         }
+//         return;
+//     }
 
-    std::vector<std::pair<int,int>> positionsSeen = distanceTable.getPositionsInRange(start, range);
-    for(const auto& pos : positionsSeen){
-        if(grid[pos.first][pos.second] == OPEN){
-            grid[pos.first][pos.second] = EXPLORED;
-        }
-    }
-}
+//     std::vector<std::pair<int,int>> positionsSeen = distanceTable.getPositionsInRange(start, range);
+//     for(const auto& pos : positionsSeen){
+//         if(grid[pos.first][pos.second] == OPEN){
+//             grid[pos.first][pos.second] = EXPLORED;
+//         }
+//     }
+// }
 
 

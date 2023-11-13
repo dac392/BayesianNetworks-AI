@@ -1,4 +1,5 @@
 #include "../headers/DeterministicBot.h"
+#include "../headers/Utility.h"
 DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
     : Bot(startPos, range_mod, alpha, id, dumb) {
     // ... additional initialization ...
@@ -12,7 +13,7 @@ void DeterministicBot::performDetected(Ship& ship){
 }
 void DeterministicBot::performNotDetected(Ship& ship){
 
-    ship.markAsSeen(currentPosition, sensor.getRange());
+    // ship.markAsSeen(currentPosition, sensor.getRange());
     removePositionsInRange();
 
 }
@@ -62,8 +63,22 @@ bool DeterministicBot::scan(std::vector<std::pair<int, int>> leaks) {
     return leakDetected;
 }
 
+void DeterministicBot::recordDifference(){  // record difference of OPEN - INRANGE
+        not_yet_explored.clear();
+        int sensorRange = this->getSensor().getRange();
+        for(const auto& pos : openPositions){
+            int distance = Utility::heuristic(currentPosition, pos);    // this might actually have to be true distance
+            if(distance > sensorRange){
+                not_yet_explored.emplace_back(pos);
+            }
+        }
+}
 
 void  DeterministicBot::removePositionsOutOfRange(){
+    if(!dumb){
+        recordDifference();
+    }
+
     std::vector<std::pair<int, int>> possibleLeakPositions;
         openPositions.erase(
             std::remove_if(
@@ -104,31 +119,23 @@ void DeterministicBot::moveToNextLocation(Ship& ship) {
 
     // Choose a random position from the candidates
     if (!candidates.empty()) {
-        // Random device and generator
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::shuffle(candidates.begin(), candidates.end(), g); // Shuffle the candidates
-
-        std::pair<int, int> nextLocation = candidates.front(); // Take the first after shuffling
-
-
+        std::pair<int, int> nextLocation = Utility::shufflePositions(candidates);
         totalActions += ship.getDistanceFrom(currentPosition, nextLocation); // Add the minimum distance to total actions
-        ship.markAsSeen(nextLocation, -1);
+        Utility::removePosition(openPositions, nextLocation);
         currentPosition = nextLocation; // Move to the chosen position
         if(ship.canPlugLeak(currentPosition)){
             bool done = ship.plugLeak(currentPosition);
             if(done){
                 active = false;
             }else{
-                openPositions = ship.bot5Correction();
+                openPositions.clear();
+                openPositions = not_yet_explored;   // might cause problems because we are not making a new vector;
             }
         }
-
-
     }
-
-
 }
+
+
 
 
 
