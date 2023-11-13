@@ -3,9 +3,6 @@
 
 #include "Ship.h"
 #include "Bot.h"
-#include "Utility.h"
-#include "DeterministicBot.h"
-#include "ProbabilisticBot.h"
 #include <vector>
 #include <memory> // For std::unique_ptr
 
@@ -21,7 +18,11 @@ public:
 
     void addBot(std::string type, std::string id, bool mode);
     void runSimulation();
+    void runTestSimulation();
     std::vector<std::pair<int, int>> getSpawnRadius();
+    std::vector<std::vector<int>> getGridFor(const std::string& id);
+    std::string getDistanceFor(std::string id);
+    bool isActive();
 
     // Other environment-related methods
 };
