@@ -92,14 +92,8 @@ void Probability::normalizeProbabilities(float modifier){
     }
 }
 
-void Probability::normalizePairs(const std::vector<std::pair<int, int>>& open, float factor){
-    for(const auto& i : open){
-        for(const auto& j : open){
-            if(i!=j){   // don't have to check if they'er closed
-                table.normalize(i, j, factor);
-            }
-        }
-    }
+void Probability::normalizePairs(float factor){
+    table.normalize(factor);
 }
 
 float Probability::getProbabilityAt(const std::pair<int, int>& pos){
@@ -124,10 +118,22 @@ void Probability::remove(const std::pair<int, int>& current){
     table.remove(current);
 }
 
+void Probability::smallerRemove(const std::pair<int, int>& current){
+    table.secondPositionRemove(current);
+}
+
 void Probability::narrowDownSearchSpace(const std::pair<int, int>& current){
     table.narrowDownSearchSpace(current);
 }
 
 float Probability::getPairProbabilityAt(const std::pair<int, int>& i, const std::pair<int, int>& j){
     return table.get(i, j);
+}
+
+void Probability::updatePairProbability(Table& distances, Sensor& sensor, const std::pair<int, int>& curr, bool signalDetected){
+    table.updatePairProbability(distances, sensor, curr, signalDetected);
+}
+
+void Probability::lateGameUpdate(Table& distances, Sensor& sensor, const std::pair<int, int>& curr, bool signalDetected){
+    table.lateGameUpdate(distances, sensor, curr, signalDetected);
 }

@@ -228,7 +228,7 @@ std::vector<std::vector<int>>& Ship::getGrid() {
 
 bool Ship::canPlugLeak(const std::pair<int, int>& pos){
     for(const auto& leak : leaks){
-        if(leak.getPosition() == pos){
+        if(leak.getPosition() == pos && leak.isActive()){
             return true;
         }
     }
@@ -327,12 +327,17 @@ bool Ship::plugLeak(const std::pair<int, int>& pos){
 
     for(const auto& l : leaks){
         if(l.isActive()){
-            return false;
+            return false;   // if there are more leaks; return false
         }
     }
 
-    return true;
+    return true;    // if there are no more leaks; return true
 }
+
+std::vector<Leak> Ship::getLeaks(){
+    return leaks;
+}
+
 
 bool Ship::almostDone(){
     int count = 0;
@@ -345,4 +350,6 @@ bool Ship::almostDone(){
     return count == 1;
 }
 
-
+Table& Ship::getDistances(){
+    return distanceTable;
+}

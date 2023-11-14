@@ -1,12 +1,15 @@
 #include "../headers/ProbabilisticBot.h"
-
-#include "Utility.h"
+#include "../headers/Utility.h"
 #include <stdexcept>
 
 // hardcoding dimensions of 50x50 on bayesian network;
 ProbabilisticBot::ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
     : Bot(startPos, range_mod, alpha, id, dumb), bayesian_network(50) {
-        bayesian_network.init(openPositions, (id=="bot9" || id=="bot8"));
+}
+
+void ProbabilisticBot::populateOpenPositions(const std::vector<std::vector<int>>& grid){
+    Bot::populateOpenPositions(grid);
+    bayesian_network.init(openPositions, (id=="bot9" || id=="bot8"));
 }
 
 std::string ProbabilisticBot::getType(){
@@ -40,42 +43,22 @@ void ProbabilisticBot::performNotDetected(Ship& ship){
 bool ProbabilisticBot::scan(Ship& ship){
     std::vector<std::pair<int, int>> leaks = ship.getPositionOfLeaks();
     bool signal = false;
-    for(auto& leak: leaks){
-        int distance = ship.getDistanceFrom(currentPosition, leak);
-        signal = signal || sensor.detect(distance);
+    for(auto& leak: ship.getLeaks()){
+        if(leak.isActive()){
+            int distance = ship.getDistanceFrom(currentPosition, leak.getPosition());
+            signal = signal || sensor.detect(distance);
+        }
     }
 
     return signal;
 }
 
 void ProbabilisticBot::correctedUpdate(Ship& ship, bool signalDetected){
-    float normFactor = 0.0;
-    for(auto& i : openPositions){
-        for(auto& j : openPositions){
-            if( i == j){
-                continue;
-            }
-
-            int dist_ki = ship.getDistanceFrom(currentPosition, i);
-            int dist_kj = ship.getDistanceFrom(currentPosition, j);
-
-            float P_beep_ki = sensor.getProbability(dist_ki);
-            float P_beep_kj = sensor.getProbability(dist_kj);
-            float P_given_ij = P_beep_ki*P_beep_kj;
-
-            float probabilityOfBeep = P_beep_ki + P_beep_kj - P_given_ij;
-
-            if(signalDetected){
-                bayesian_network.scaleBayesianPair(i, j, probabilityOfBeep);
-            }else{
-                bayesian_network.scaleBayesianPair(i, j , 1-probabilityOfBeep);
-            }
-
-            normFactor += bayesian_network.getPairProbabilityAt(i, j);
-        }
+    if(ship.almostDone()){
+        bayesian_network.lateGameUpdate(ship.getDistances(), sensor, currentPosition, signalDetected);
+    }else{
+        bayesian_network.updatePairProbability(ship.getDistances(), sensor, currentPosition, signalDetected);
     }
-
-    bayesian_network.normalizePairs(openPositions, normFactor);
 
 }
 
@@ -105,7 +88,7 @@ void ProbabilisticBot::updateProbabilities(Ship& ship, bool signalDetected){
 
 
 void ProbabilisticBot::moveToNextLocation(Ship& ship){
-    if(id == "bot9"){
+    if(id == "bot9" || id=="bot8"){
         intelligentStep(ship);
     }else{
         naiveNextStep(ship);
@@ -113,37 +96,43 @@ void ProbabilisticBot::moveToNextLocation(Ship& ship){
 
 }
 
-void ProbabilisticBot::intelligentStep(Ship& ship){
+void ProbabilisticBot::intelligentStep(Ship& ship){ //contains(open, position)
     std::vector<std::pair<int, int>> candidates;
-
+    std::vector<std::pair<int, int>> allMostProbable;
     if(ship.almostDone()){
-        candidates = bayesian_network.getIntelligentStep(currentPosition);
+        allMostProbable = bayesian_network.getIntelligentStep(currentPosition);  //actually, just gets the highest probabilityPair list
     }else{
-        std::vector<std::pair<int, int>> allMostProbable = bayesian_network.getHighestProbabilityList();
-        candidates = ship.getMostProbable(currentPosition, allMostProbable);
+        allMostProbable = bayesian_network.getHighestProbabilityList();
+
     }
+    candidates = ship.getMostProbable(currentPosition, allMostProbable);
 
 
     std::pair<int, int> nextPosition = Utility::shufflePositions(candidates);
     std::vector<std::pair<int, int>> pathToNextPosition = ship.getShortestPath(currentPosition, nextPosition);
     bool foundLeak = false;
     for(const auto& pos : pathToNextPosition){
+
         currentPosition = pos;
         if(ship.canPlugLeak(currentPosition)){
-            if(ship.plugLeak(currentPosition) && !ship.hasLeaks()){
-                if(!ship.hasLeaks()){
-                    active = false;
-                    return;
-                }else{  // we change to using bayesian instead of normal matrix
+            bool done = ship.plugLeak(currentPosition);
 
-                    foundLeak = true;
-                }
+            if(done){
+                active = false;
+                return;
+            }else{  // we change to using bayesian instead of normal matrix
 
+                foundLeak = true;
             }
+
+
         }
         if(foundLeak){
             // remove double probability not containing current
             bayesian_network.narrowDownSearchSpace(currentPosition);
+        }else if(ship.almostDone()){
+            // can only remove one posibility at a time once we found the first leaks
+            bayesian_network.smallerRemove(currentPosition);
         }else{
             // remove double probability
             bayesian_network.remove(currentPosition);

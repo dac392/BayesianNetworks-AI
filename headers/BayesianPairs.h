@@ -1,12 +1,13 @@
 #ifndef BAYESIANPAIRS_H
 #define BAYESIANPAIRS_H
 
-#include <list>
 #include <utility>
 #include <unordered_map>
 #include <vector>
 
 #include "Coordinate.h"
+#include "Sensor.h"
+#include "Table.h"
 
 
 
@@ -23,12 +24,16 @@ public:
 
 
     void scalePairs(const std::pair<int,int>& x, const std::pair<int, int>& y, float mod);
-    void normalize(const std::pair<int, int>& i, const std::pair<int, int>& j, float factor);
+    //    void normalize(const std::pair<int, int>& i, const std::pair<int, int>& j, float factor);
+    void normalize(float factor);
     std::vector<std::pair<int, int>> getHighestProbabilities(const std::pair<int, int>& current);
     void remove(const std::pair<int, int>& current);
+    void secondPositionRemove(const std::pair<int, int>& current);
     float get(const std::pair<int, int>& i, const std::pair<int, int>& j);
     void redistribute(float modifier);
     void narrowDownSearchSpace(const std::pair<int, int>& current);
+    void updatePairProbability(Table& distances, Sensor& sensor,const std::pair<int, int>& curr, bool signalDetected);
+    void lateGameUpdate(Table& distances, Sensor& sensor, const std::pair<int, int>& curr, bool signalDetected);
 };
 
 #endif // BAYESIANPAIRS_H

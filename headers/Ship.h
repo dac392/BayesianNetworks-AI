@@ -8,16 +8,6 @@
 #include <random>    // For std::default_random_engine
 #include "Leak.h"
 #include "Table.h"
-#include "Probability.h"
-
-struct ShipHash {
-    size_t operator()(const std::pair<int, int>& p) const {
-        const size_t prime = 31;
-        size_t hash1 = std::hash<int>()(p.first);
-        size_t hash2 = std::hash<int>()(p.second);
-        return hash1 * prime + hash2;
-    }
-};
 
 class Ship {
 private:
@@ -43,6 +33,7 @@ public:
     bool canPlugLeak(const std::pair<int, int>& pos);
     bool plugLeak(const std::pair<int, int>& pos);
     bool hasLeaks();
+    std::vector<Leak> getLeaks();
     bool firstRoundTest();
 
     std::vector<std::pair<int, int>> reset();
@@ -54,6 +45,7 @@ public:
     bool positionIsOpen(int i, int j);
     std::vector<std::pair<int, int>> getMostProbable(const std::pair<int, int>& current, std::vector<std::pair<int, int>>& mostProbable);
     std::vector<std::pair<int, int>> getShortestPath(std::pair<int, int> start, std::pair<int, int> goal);
+    Table& getDistances();
 
 
 
