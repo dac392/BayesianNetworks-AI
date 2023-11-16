@@ -3,7 +3,7 @@
 #include <iostream>
 
 // Constructor implementation
-Sensor::Sensor(int range_mod, int alpha)
+Sensor::Sensor(int range_mod, float alpha)
     : k(range_mod),alpha(alpha),
     generator(std::random_device{}()), distribution(0.0f, 1.0f) {
     range = (2*k+1);

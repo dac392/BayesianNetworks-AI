@@ -13,6 +13,7 @@ protected:
     bool active;
     int totalActions;
     std::string id;
+    std::string uid;
     std::pair<int, int> initialPosition;
     std::pair<int, int> currentPosition;
     std::vector< std::pair<int, int> > openPositions;
@@ -22,7 +23,7 @@ protected:
     Sensor sensor;
 
     // Protected constructor to be called by derived classes
-    Bot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
+    Bot(const std::pair<int, int>& startPos, int range_mod, float alpha, const std::string& id, bool dumb)
         : dumb(dumb), id(id), initialPosition(startPos), currentPosition(startPos), sensor(range_mod, alpha) {
         active = true;
         totalActions=0;
@@ -30,15 +31,22 @@ protected:
     }
 
 public:
-    virtual ~Bot() = default;
     // Still pure virtual as the implementation is likely to be different in derived classes
     virtual void moveToNextLocation(Ship& ship) = 0;
     virtual std::string getType() = 0;
-
     virtual bool performScan(Ship& ship)=0;
     virtual void performDetected(Ship& ship)=0;
     virtual void performNotDetected(Ship& ship)=0;
 
+
+
+    virtual void setUID(const std::string& bot_uid){
+        uid = bot_uid;
+    }
+
+    virtual std::string get_uid(){
+        return uid;
+    }
     virtual void move(int x, int y) {
         currentPosition = {x, y};
     }

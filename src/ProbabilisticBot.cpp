@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 // hardcoding dimensions of 50x50 on bayesian network;
-ProbabilisticBot::ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
+ProbabilisticBot::ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, float alpha, const std::string& id, bool dumb)
     : Bot(startPos, range_mod, alpha, id, dumb), bayesian_network(50) {
 }
 

@@ -4,6 +4,8 @@
 #include <algorithm> // For std::shuffle
 #include <iterator>  // For std::begin, std::end
 #include <random>    // For std::default_random_engine
+#include <chrono>
+#include <sstream>
 
 std::pair<int, int> Utility::generateCoordinate(){
     // Seed the random number generator.
@@ -49,10 +51,23 @@ std::pair<int, int> Utility::shufflePositions(std::vector<std::pair<int, int>>& 
 
 }
 
+int Utility::cast(int size){
+    return static_cast<std::vector<std::vector<int> >::size_type>(size);
+}
+
 
 void Utility::removePosition(std::vector<std::pair<int, int>>& vec, const std::pair<int, int>& elem) {
     auto it = std::find(vec.begin(), vec.end(), elem);
     if (it != vec.end()) {
         vec.erase(it);
     }
+}
+
+std::string Utility::generateTimestampID() {
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+
+    std::ostringstream oss;
+    oss << duration.count(); // Append other unique data as needed
+    return oss.str();
 }

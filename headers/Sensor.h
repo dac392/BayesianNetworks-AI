@@ -7,13 +7,12 @@ class Sensor {
 private:
     int range;
     int k;
-//    float probabilityModel; // The probability model coefficient for detection
     float alpha;
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution;
 
 public:
-    Sensor(int range, int alpha);
+    Sensor(int range, float alpha);
     bool detect(int distance);
     float getProbability(int distance);
 

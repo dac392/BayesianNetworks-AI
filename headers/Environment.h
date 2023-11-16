@@ -15,7 +15,7 @@ private:
     int alpha;
 
 public:
-    Environment(int shipSize, int range_mod, int alpha);
+    Environment(int shipSize, int range_mod, float alpha);
 
     void addBot(std::string type, std::string id, bool mode);
     void start();
@@ -25,6 +25,11 @@ public:
     std::vector<std::vector<int>> getGridFor(const std::string& id);
     std::string getDistanceFor(const std::string& id);
     bool isActive();
+
+    void collectData();
+    void collectMainData();
+    void collectShipData();
+    void collectBotData();
 
     // Other environment-related methods
 };

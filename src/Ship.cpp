@@ -25,6 +25,13 @@ Ship::Ship(int size) : dimensions(size), grid(size, std::vector<int>(size, 0)),
 
 }
 
+void Ship::setID(const std::string& ship_name){
+    id = ship_name;
+}
+std::string Ship::get_uid(){
+    return id;
+}
+
 bool Ship::hasLeaks(){
     for(const auto& leak : leaks){
         if(leak.isActive()){
@@ -164,7 +171,7 @@ bool Ship::positionIsOpen(int i, int j){
 
 bool Ship::isPositionOpen(int i, int j, const std::vector<std::pair<int, int>>& open) {
     // Check if position is within the grid boundaries
-    if (i < 0 || i >= grid.size() || j < 0 || j >= grid[0].size()) return false;
+    if (i < 0 || i >= Utility::cast(grid.size()) || j < 0 || j >= Utility::cast(grid[0].size())) return false;
 
     // Check if the position is not blocked and is in the open list
     if (grid[i][j] == 1) return false;

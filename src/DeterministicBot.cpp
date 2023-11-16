@@ -1,6 +1,6 @@
 #include "../headers/DeterministicBot.h"
 #include "../headers/Utility.h"
-DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb)
+DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, float alpha, const std::string& id, bool dumb)
     : Bot(startPos, range_mod, alpha, id, dumb) {
     // ... additional initialization ...
 }

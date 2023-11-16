@@ -9,7 +9,7 @@ private:
     Probability bayesian_network;
 
 public:
-    ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb);
+    ProbabilisticBot(const std::pair<int, int>& startPos, int range_mod, float alpha, const std::string& id, bool dumb);
     std::string getType() override;
 
     virtual bool performScan(Ship& ship) override;

@@ -12,6 +12,7 @@
 class Ship {
 private:
     int dimensions;
+    std::string id;
     std::vector<std::vector<int>> grid;
     Table distanceTable;
     std::vector<Leak> leaks;
@@ -27,6 +28,8 @@ private:
 
 public:
     explicit Ship(int size = 50);
+    void setID(const std::string& ship_name);
+    std::string get_uid();
     bool isPositionOpen(int i, int j, const std::vector<std::pair<int, int>>& open);
     void initializeGrid();
     void addLeak(const std::vector<std::pair<int, int>>& blockedPositions);

@@ -10,7 +10,7 @@ private:
     std::vector<std::pair<int, int>> not_yet_explored;
 public:
     //using Bot::Bot;
-    DeterministicBot(const std::pair<int, int>& startPos, int range_mod, int alpha, const std::string& id, bool dumb);
+    DeterministicBot(const std::pair<int, int>& startPos, int range_mod, float alpha, const std::string& id, bool dumb);
     std::string getType() override;
 
     virtual bool performScan(Ship& ship) override;
