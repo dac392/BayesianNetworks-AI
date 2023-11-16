@@ -41,7 +41,7 @@ void Environment::collectMainData(){
     std::ofstream file(DATA_FILE, std::ios::app);
     for(const auto& bot : bots){
         float mod = (bot->getType() == "Deterministic")? (float)range_mod : alpha;
-        file << ship.get_uid() << "," << bot->get_uid() << "," << bot->getID() << "," << bot->getType() << "," << mod << bot->getTotalDistance() << "\n";
+        file << ship.get_uid() << "," << bot->get_uid() << "," << bot->getID() << "," << bot->getType() << "," << mod << "," << bot->getTotalDistance() << "\n";
     }
 
     file.close();

@@ -12,7 +12,7 @@ private:
     Ship ship;
     std::vector<std::unique_ptr<Bot>> bots;
     int range_mod;
-    int alpha;
+    float alpha;
 
 public:
     Environment(int shipSize, int range_mod, float alpha);
