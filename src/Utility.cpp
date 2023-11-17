@@ -51,6 +51,10 @@ std::pair<int, int> Utility::shufflePositions(std::vector<std::pair<int, int>>& 
 
 }
 
+void Utility::error(const std::string& message){
+    throw std::runtime_error(message+"\n");
+}
+
 int Utility::cast(int size){
     return static_cast<std::vector<std::vector<int> >::size_type>(size);
 }
@@ -70,4 +74,12 @@ std::string Utility::generateTimestampID() {
     std::ostringstream oss;
     oss << duration.count(); // Append other unique data as needed
     return oss.str();
+}
+
+bool Utility::isValid(int x, int y, int dim){
+    if(x>=0 && x<dim && y>=0 && y<dim){
+        return true;
+    }
+
+    return false;
 }

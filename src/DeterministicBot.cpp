@@ -1,8 +1,8 @@
 #include "../headers/DeterministicBot.h"
 #include "../headers/Utility.h"
 DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, float alpha, const std::string& id, bool dumb)
-    : Bot(startPos, range_mod, alpha, id, dumb) {
-    // ... additional initialization ...
+    : Bot(startPos, range_mod, alpha, id, dumb), heuristic(range_mod, currentPosition) {
+    // maybe we'll move init heuristic here
 }
 
 bool DeterministicBot::performScan(Ship& ship){
@@ -10,12 +10,12 @@ bool DeterministicBot::performScan(Ship& ship){
 }
 void DeterministicBot::performDetected(Ship& ship){
     removePositionsOutOfRange();
+    if(id=="bot2" || id=="bot6"){
+        heuristic.adapt();
+    }
 }
 void DeterministicBot::performNotDetected(Ship& ship){
-
-    // ship.markAsSeen(currentPosition, sensor.getRange());
     removePositionsInRange();
-
 }
 
 
@@ -115,6 +115,31 @@ void DeterministicBot::removePositionsInRange() {
 }
 
 void DeterministicBot::moveToNextLocation(Ship& ship) {
+    if(id == "bot2" || id == "bot6"){
+        spiralApproach(ship);
+    }else{
+        naiveApproach(ship);
+    }
+}
+
+void DeterministicBot::spiralApproach(Ship& ship){
+    std::pair<int, int> next = heuristic.findNextPosition(ship, openPositions);
+    totalActions += ship.getDistanceFrom(currentPosition, next);
+    Utility::removePosition(openPositions, next);
+    currentPosition = next;
+    if(ship.canPlugLeak(currentPosition)){
+        bool done = ship.plugLeak(currentPosition);
+        if(done){
+            active = false;
+        }else{
+                // FIX: figureout 2 leaks
+            openPositions.clear();
+            openPositions = not_yet_explored;
+        }
+    }
+}
+
+void DeterministicBot::naiveApproach(Ship& ship){
     std::vector<std::pair<int, int>> candidates = ship.getClosestReachable(currentPosition, openPositions);
 
     // Choose a random position from the candidates

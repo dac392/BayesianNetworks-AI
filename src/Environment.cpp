@@ -214,13 +214,13 @@ void Environment::runTestSimulation(){
     // Iterate over the list of bots to find the one with ID "bot1"
     for (auto& bot : bots) {
         if(ship.firstRoundTest()){
-//            DeterministicBot* detBot = dynamic_cast<DeterministicBot*>(bot.get());
-//            ship.addLeak(detBot->getSpawnRadius());
-            std::vector<std::pair<int, int>> idk;
-            ship.addLeak(idk);
-            if(!bot->isDumb()){
-                ship.addLeak(idk);
-            }
+           DeterministicBot* detBot = dynamic_cast<DeterministicBot*>(bot.get());
+           ship.addLeak(detBot->getSpawnRadius());
+            // std::vector<std::pair<int, int>> idk;
+            // ship.addLeak(idk);
+            // if(!bot->isDumb()){
+            //     ship.addLeak(idk);
+            // }
             bot->setLeakPositions( ship.getPositionOfLeaks() );
         }
 

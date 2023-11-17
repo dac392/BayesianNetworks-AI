@@ -15,6 +15,8 @@ public:
     static void removePosition(std::vector<std::pair<int, int>>& vec, const std::pair<int, int>& elem);
     static std::string generateTimestampID();
     static int cast(int size);
+    static bool isValid(int x, int y, int dim);
+    static void error(const std::string& message);
 };
 
 // PairHash definition
