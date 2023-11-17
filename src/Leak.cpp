@@ -15,3 +15,7 @@ bool Leak::isActive() const {
 void Leak::plug() {
     state = false; // The leak is plugged, so we set the state to false
 }
+
+void Leak::reset(){
+    state = true;
+}

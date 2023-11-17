@@ -25,6 +25,16 @@ Ship::Ship(int size) : dimensions(size), grid(size, std::vector<int>(size, 0)),
 
 }
 
+void Ship::fixLeaks(bool one_leak){
+    if(one_leak){
+        leaks[0].reset();
+        leaks[1].plug();
+    }else{
+        leaks[0].reset();
+        leaks[1].reset();
+    }
+}
+
 void Ship::setID(const std::string& ship_name){
     id = ship_name;
 }
@@ -188,8 +198,9 @@ std::vector<std::pair<int, int>> Ship::reset() {
     std::vector<std::pair<int, int>> fixedLeaks;
 
     // Go through each leak and reset the grid position to 0
-    for (const auto& leak : leaks) {
+    for (auto& leak : leaks) {
         fixedLeaks.push_back(leak.getPosition()); // Add the leak position to the vector
+        leak.reset();
     }
 
     for(int i = 0; i < dimensions; i++){
@@ -200,9 +211,7 @@ std::vector<std::pair<int, int>> Ship::reset() {
         }
     }
 
-    leaks.clear(); // Clear the leaks after fixing them
-
-    return fixedLeaks; // Return the vector of fixed leaks
+    return fixedLeaks;
 }
 
 std::vector<std::pair<int, int>> Ship::getNeighbors(int x, int y) const {

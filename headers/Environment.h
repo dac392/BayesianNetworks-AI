@@ -10,6 +10,7 @@
 class Environment {
 private:
     Ship ship;
+    std::pair<int, int> coordinate;
     std::vector<std::unique_ptr<Bot>> bots;
     int range_mod;
     float alpha;

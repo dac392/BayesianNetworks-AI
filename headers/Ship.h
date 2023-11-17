@@ -49,6 +49,7 @@ public:
     std::vector<std::pair<int, int>> getMostProbable(const std::pair<int, int>& current, std::vector<std::pair<int, int>>& mostProbable);
     std::vector<std::pair<int, int>> getShortestPath(std::pair<int, int> start, std::pair<int, int> goal);
     Table& getDistances();
+    void fixLeaks(bool one_leak);
 
 
 

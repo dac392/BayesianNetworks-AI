@@ -22,13 +22,13 @@ private:
     void update();
     void funky_update();
     void reverse_update();
-    std::pair<int, int> blindSearch(Ship& ship, const std::vector<std::pair<int, int>>& open);
-    std::pair<int, int> informedSearch(Ship& ship, const std::vector<std::pair<int, int>>& open);
+    std::pair<int, int> blindSearch(Ship& ship, std::vector<std::pair<int, int>>& open);
+    std::pair<int, int> informedSearch(Ship& ship, std::vector<std::pair<int, int>>& open);
     bool search(const std::vector<std::pair<int, int>>& open, int dead_end);
 
 public:
     Spiral(int k, const std::pair<int, int>& curr);
-    std::pair<int, int> findNextPosition(Ship& ship,const std::vector<std::pair<int, int>>& open);
+    std::pair<int, int> findNextPosition(Ship& ship, std::vector<std::pair<int, int>>& open);
     void adapt();
 };
 #endif // SPIRAL_H

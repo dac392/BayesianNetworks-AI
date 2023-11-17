@@ -19,8 +19,9 @@ Spiral::Spiral(int k, const std::pair<int, int>& position) : k(k), position(posi
 
 }
 
-std::pair<int, int> Spiral::findNextPosition(Ship& ship, const std::vector<std::pair<int, int>>& open) {
+std::pair<int, int> Spiral::findNextPosition(Ship& ship, std::vector<std::pair<int, int>>& open) {
     if(detected){
+        std::cout << "goal near me" << std::endl;
         return informedSearch(ship, open);
     }
 
@@ -28,7 +29,7 @@ std::pair<int, int> Spiral::findNextPosition(Ship& ship, const std::vector<std::
 
 }
 
-std::pair<int, int> Spiral::blindSearch(Ship& ship, const std::vector<std::pair<int, int>>& open){
+std::pair<int, int> Spiral::blindSearch(Ship& ship, std::vector<std::pair<int, int>>& open){
     if (open.empty()) {
         Utility::error("Fatal error: blind search, open is empty");
         return position; // Return current position if no open positions are available
@@ -44,41 +45,41 @@ std::pair<int, int> Spiral::blindSearch(Ship& ship, const std::vector<std::pair<
         std::pair<int, int> op1(x+dx[direction], y-dy[direction]);
         std::pair<int, int> op2(x-dx[direction], y+dy[direction]);
 
-
-        for(const auto& pos : candidates){
-            if(goal == pos){
-                position = goal;
-                funky_update();
-                return goal;
-            }
-            if(op1 == pos){
+        if(std::find(open.begin(), open.end(), goal) != open.end()){
+            position = goal;
+            funky_update();
+            return goal;
+        }
+        if(std::find(open.begin(), open.end(), op1) != open.end()){
                 position = op1;
                 funky_update();
                 return op1;
-            }
-            if(op2 == pos){
+        }
+        if(std::find(open.begin(), open.end(), op2) != open.end()){
                 position = op2;
                 funky_update();
                 return op2;
-            }
         }
+
+
 
     }
 
-    std::pair<int, int> p = Utility::shufflePositions(candidates);
+    std::pair<int, int> p = Utility::shufflePositions( candidates );
     position = p;
-    std::cout << "random" << std::endl;
+    funky_update();
     return p;
 }
 
 
 
-std::pair<int, int> Spiral::informedSearch(Ship& ship, const std::vector<std::pair<int, int>>& open) {
+std::pair<int, int> Spiral::informedSearch(Ship& ship, std::vector<std::pair<int, int>>& open) {
     if(search(open, 0)){
         return position;
     }
     std::vector<std::pair<int, int>> candidates = ship.getClosestReachable(position, open);
-    std::pair<int, int> next = Utility::shufflePositions(candidates);
+    // auto& list = (candidates.empty())? open : candidates;
+    std::pair<int, int> next = Utility::shufflePositions( candidates );
     position = next;
     return position;
 }
@@ -111,6 +112,7 @@ void Spiral::adapt(){
     detected = true;
     dx = {0, 1, 0, -1};
     dy = {-1, 0, 1, 0};
+    step_size = 2*k;
 }
 
 

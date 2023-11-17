@@ -44,6 +44,10 @@ public:
         uid = bot_uid;
     }
 
+    virtual void invalidateActions(){
+        totalActions = -1;
+    }
+
     virtual std::string get_uid(){
         return uid;
     }

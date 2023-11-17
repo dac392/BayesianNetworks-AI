@@ -6,17 +6,14 @@
 class Leak {
 private:
     std::pair<int, int> position;
-    bool state; // true if the leak is active, false if it has been plugged
+    bool state; 
 
 public:
-    Leak(std::pair<int, int> position); // Constructor that initializes the location and state of the leak
-
-    // Accessor methods
+    Leak(std::pair<int, int> position); 
     std::pair<int,int> getPosition() const;
-    bool isActive() const; // Returns true if the leak is active
-
-    // Mutator method
-    void plug(); // Changes the state of the leak to inactive (plugged)
+    bool isActive() const;
+    void plug(); 
+    void reset();
 };
 
 #endif // LEAK_H

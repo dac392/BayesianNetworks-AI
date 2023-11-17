@@ -1,5 +1,7 @@
 #include "../headers/DeterministicBot.h"
 #include "../headers/Utility.h"
+#include <iostream>
+
 DeterministicBot::DeterministicBot(const std::pair<int, int>& startPos, int range_mod, float alpha, const std::string& id, bool dumb)
     : Bot(startPos, range_mod, alpha, id, dumb), heuristic(range_mod, currentPosition) {
     // maybe we'll move init heuristic here
@@ -132,7 +134,6 @@ void DeterministicBot::spiralApproach(Ship& ship){
         if(done){
             active = false;
         }else{
-                // FIX: figureout 2 leaks
             openPositions.clear();
             openPositions = not_yet_explored;
         }

@@ -14,6 +14,11 @@
 Environment::Environment(int shipSize, int range_mod, float alpha)
     : ship(shipSize), range_mod(range_mod), alpha(alpha) {
     ship.setID(Utility::generateTimestampID());
+    do{
+        coordinate = Utility::generateCoordinate();
+    }while(!ship.positionIsOpen(coordinate.first, coordinate.second));
+    ship.addLeak(DeterministicBot(coordinate, range_mod, alpha, "", false).getSpawnRadius());
+    ship.addLeak(DeterministicBot(coordinate, range_mod, alpha, "", false).getSpawnRadius());
 }
 
 std::string Environment::getDistanceFor(const std::string& id){
@@ -40,6 +45,7 @@ void Environment::collectMainData(){
     //ship_uid, bot_uid, bot_name, bot_type, alpha|k, total_actions\n
     std::ofstream file(DATA_FILE, std::ios::app);
     for(const auto& bot : bots){
+        if(bot->getTotalDistance() == -1) continue;
         float mod = (bot->getType() == "Deterministic")? (float)range_mod : alpha;
         file << ship.get_uid() << "," << bot->get_uid() << "," << bot->getID() << "," << bot->getType() << "," << mod << "," << bot->getTotalDistance() << "\n";
     }
@@ -58,6 +64,7 @@ void Environment::collectShipData(){
         file << ";";
     }
     file << "\n";
+    file.close();
 }
 
 void Environment::collectBotData(){
@@ -65,6 +72,7 @@ void Environment::collectBotData(){
     // bot_uid, goal positions, path taken, positions scanned <empty for prob bots>\n
     std::ofstream file(BOT_FILE, std::ios::app);
     for(const auto& bot : bots){
+        if(bot->getTotalDistance() == -1) continue;
         file << bot->get_uid() << ",";
 
         for(const auto& goal : bot->getGoalPositions()){
@@ -84,6 +92,7 @@ void Environment::collectBotData(){
         }
 
         file << "\n";
+        file.close();
     }
 }
 
@@ -143,11 +152,7 @@ std::vector<std::vector<int>> Environment::getGridFor(const std::string& id) {
 
 
 void Environment::addBot(std::string type, std::string id, bool mode) {
-    std::pair<int, int> pos;
-
-    do{
-        pos = Utility::generateCoordinate();
-    }while(!ship.positionIsOpen(pos.first, pos.second));
+    std::pair<int, int> pos = coordinate;
 
     std::unique_ptr<Bot> bot;
     if (type == "deterministic") {
@@ -171,21 +176,7 @@ void Environment::runSimulation() {
     // This will typically involve iterating over the bots and invoking their behavior
 
     for (auto& bot : bots) {
-
-        if(bot->getType() == "Deterministic"){
-            DeterministicBot* detBot = dynamic_cast<DeterministicBot*>(bot.get());
-            ship.addLeak(detBot->getSpawnRadius());
-            if(!bot->isDumb()){
-                ship.addLeak(detBot->getSpawnRadius());
-            }
-        }else if(bot->getType() == "Probabilistic"){
-            std::vector<std::pair<int, int>> idk;
-            ship.addLeak(idk);
-            if(!bot->isDumb()){
-                ship.addLeak(idk);
-            }
-        }
-
+        ship.fixLeaks(bot->isDumb());
 
 //        int count = 0;&& count < 2
         while(bot->isActive() ){
@@ -199,6 +190,7 @@ void Environment::runSimulation() {
                 bot->moveToNextLocation(ship);
             }catch (const std::exception& e) {
                 std::cout << "Error: bot literally can't move" << e.what() << std::endl;
+                bot->invalidateActions();
                 break;
             }
 
@@ -214,13 +206,7 @@ void Environment::runTestSimulation(){
     // Iterate over the list of bots to find the one with ID "bot1"
     for (auto& bot : bots) {
         if(ship.firstRoundTest()){
-           DeterministicBot* detBot = dynamic_cast<DeterministicBot*>(bot.get());
-           ship.addLeak(detBot->getSpawnRadius());
-            // std::vector<std::pair<int, int>> idk;
-            // ship.addLeak(idk);
-            // if(!bot->isDumb()){
-            //     ship.addLeak(idk);
-            // }
+
             bot->setLeakPositions( ship.getPositionOfLeaks() );
         }
 
@@ -237,7 +223,8 @@ void Environment::runTestSimulation(){
         try{
             bot->moveToNextLocation(ship);
         }catch (const std::exception& e) {
-            std::cout << "Error: bot literally can't move" << e.what() << std::endl;
+            std::cout << "Error: bot literally can't move\n" << e.what() << std::endl;
+            bot->invalidateActions();
             break;
         }
 
