@@ -21,7 +21,6 @@ Spiral::Spiral(int k, const std::pair<int, int>& position) : k(k), position(posi
 
 std::pair<int, int> Spiral::findNextPosition(Ship& ship, std::vector<std::pair<int, int>>& open) {
     if(detected){
-        std::cout << "goal near me" << std::endl;
         return informedSearch(ship, open);
     }
 
@@ -79,7 +78,11 @@ std::pair<int, int> Spiral::informedSearch(Ship& ship, std::vector<std::pair<int
     }
     std::vector<std::pair<int, int>> candidates = ship.getClosestReachable(position, open);
     // auto& list = (candidates.empty())? open : candidates;
-    std::pair<int, int> next = Utility::shufflePositions( candidates );
+    std::pair<int, int> next;
+    do{
+        next = Utility::shufflePositions( candidates );
+    }while(position == next);
+     
     position = next;
     return position;
 }
@@ -146,11 +149,7 @@ void Spiral::funky_update(){
 }
 
 void Spiral::reverse_update(){
-    if(direction == 0){
-        direction = (direction - 1) % 4;
-    }else{
-        direction--;
-    }
-
+    
+    direction = (direction - 1) % 4;
 
 }
