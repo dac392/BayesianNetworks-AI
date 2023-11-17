@@ -176,6 +176,7 @@ void Environment::runSimulation() {
     // This will typically involve iterating over the bots and invoking their behavior
 
     for (auto& bot : bots) {
+        std::cout << "\trunning " << bot->getID() << std::endl;
         ship.fixLeaks(bot->isDumb());
 
 //        int count = 0;&& count < 2
