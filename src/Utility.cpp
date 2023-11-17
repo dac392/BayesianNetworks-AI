@@ -4,6 +4,7 @@
 #include <algorithm> // For std::shuffle
 #include <iterator>  // For std::begin, std::end
 #include <random>    // For std::default_random_engine
+#include <queue>
 #include <chrono>
 #include <sstream>
 
@@ -82,4 +83,23 @@ bool Utility::isValid(int x, int y, int dim){
     }
 
     return false;
+}
+
+std::pair<int, int> Utility::getClosestPosition(const Coordinate& start, const std::vector<std::pair<int, int>>& open){
+    const std::vector<std::pair<int, int>> DIRECTIONS = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    std::queue<Coordinate> q;
+    q.push(start);
+
+    while(!q.empty()){
+        Coordinate current = q.front();
+        q.pop();
+        for(const auto& dir : DIRECTIONS){
+            Coordinate next = {current.x + dir.first, current.y + dir.second};
+            if(std::find(open.begin(), open.end(), std::make_pair(next.x, next.y))!=open.end()){
+                return std::make_pair(next.x, next.y);
+            }
+            q.push(next);
+
+        }
+    }
 }

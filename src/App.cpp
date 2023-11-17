@@ -47,39 +47,25 @@ void nonSpinThread(int range_mod, float alpha) {
 }
 
 int main() {
-    std::vector<std::thread> threads;
+    // std::vector<std::thread> threads;
 
-    for (int i = 4; i < EXPERIMENT_NUMBER; i++) {
-        int range_mod = 1 + (i % 10);
-        float alpha = 0.05f * i + 0.05;
+    // for (int i = 4; i < EXPERIMENT_NUMBER; i++) {
+    //     int range_mod = 1 + (i % 10);
+    //     float alpha = 0.05f * i + 0.05;
+    //     for (int j = 0; j < 3; ++j) {
+    //         threads.emplace_back(nonSpinThread, range_mod, alpha);
+    //     }
 
-        // Reset stop flag
-        // stopSpinningThread.store(false);
+    //     // Wait for non-spinning threads to finish
+    //     for (auto& thread : threads) {
+    //         thread.join();
+    //     }
 
-        // Create and start spinning thread
-        //std::thread spinningThread(spinThread, range_mod, alpha);
+    //     std::thread simple(simpleThread, range_mod, alpha);
+    //     simple.join();
 
-        // Create and start non-spinning threads
-        for (int j = 0; j < 3; ++j) {
-            threads.emplace_back(nonSpinThread, range_mod, alpha);
-        }
-
-        // Wait for non-spinning threads to finish
-        for (auto& thread : threads) {
-            thread.join();
-        }
-
-        std::thread simple(simpleThread, range_mod, alpha);
-        simple.join();
-
-        // Signal spinning thread to stop
-        // stopSpinningThread.store(true);
-
-        // Join the spinning thread
-        // spinningThread.join();
-
-        threads.clear();
-    }
+    //     threads.clear();
+    // }
 
     return 0;
 }
@@ -94,18 +80,23 @@ void App::printResults(){
     std::cout << "\tbot1 distance traveled: "<< environment.getDistanceFor("bot1") << std::endl;
     std::cout << "\tbot2 distance traveled: "<< environment.getDistanceFor("bot2") << std::endl;
     std::cout << "\tbot3 distance traveled: "<< environment.getDistanceFor("bot3") << std::endl;
+    std::cout << "\tbot4 distance traveled: "<< environment.getDistanceFor("bot4") << std::endl;
     std::cout << "\tbot5 distance traveled: "<< environment.getDistanceFor("bot5") << std::endl;
     std::cout << "\tbot6 distance traveled: "<< environment.getDistanceFor("bot6") << std::endl;
     std::cout << "\tbot7 distance traveled: "<< environment.getDistanceFor("bot7") << std::endl;
     std::cout << "\tbot8 distance traveled: "<< environment.getDistanceFor("bot8") << std::endl;
+    std::cout << "\tbot9 distance traveled: "<< environment.getDistanceFor("bot9") << std::endl;
 }
 
 void App::run() {
-    environment.addBot("deterministic", "bot1", true);    // is dumb
-    environment.addBot("deterministic", "bot2", true);
-    environment.addBot("probabilistic", "bot3", true);      // is dumb
-    environment.addBot("deterministic", "bot5", false);   // is not dumb
-    environment.addBot("deterministic", "bot6", false);    // is dumb
+    // environment.addBot("deterministic", "bot1", true);    // is dumb
+    // environment.addBot("deterministic", "bot2", true);
+    // environment.addBot("probabilistic", "bot3", true);      // is dumb
+    // environment.addBot("deterministic", "bot5", false);   // is not dumb
+    // environment.addBot("deterministic", "bot6", false);    // is dumb
+
+    environment.addBot("probabilistic", "bot4", true);
+    environment.addBot("probabilistic", "bot9", false);
 
     environment.runSimulation();
     printResults();
@@ -137,24 +128,14 @@ void App::collectData(){
 
 // }
 
-// int main() {
-//     std::vector<std::thread> threads;
-//     for(int i = 0; i < EXPERIMENT_NUMBER; i++){
-//         int range_mod = 1+(i%10);
-//         float alpha = 0.05f*i +0.05;
-//         for(int threads_count = 0; threads_count < THREAD_COUNT; threads_count++ ){
-//             if(threads_count < THREAD_COUNT-2){
-//                 threads.emplace_back(spinThread, range_mod, alpha, true);
-//             }else{
-//                 threads.emplace_back(spinThread, range_mod, alpha, false);
-//             }
-//             std::cout << "Thread " << threads_count <<" running experiment: " << i << "; k( " << range_mod << " ) aplha( " << alpha << " )" << std::endl;
-//         }
-//         for(auto& thread : threads){
-//             thread.join();
-//             std::cout << "joining()" << std::endl;
-//         }
-//     }
+int main() {
+    std::vector<std::thread> threads;
+    for(int i = 0; i < EXPERIMENT_NUMBER; i++){
+        int range_mod = 1+(i%10);
+        float alpha = 0.05f*i +0.05;
+        App app(50, range_mod, alpha);
+        app.run();
+    }
     
-//     return 0;
-// }
+    return 0;
+}

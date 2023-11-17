@@ -22,21 +22,29 @@ bool ProbabilisticBot::performScan(Ship& ship){
 }
 
 void ProbabilisticBot::performDetected(Ship& ship){
+    updateProbabilities(ship, true);    //always true if we're here
+    bayesian_network.simpleHeuristicUpdate();
     if(id == "bot9" || id == "bot8"){
         correctedUpdate(ship, true);
+        if(id=="bot9"){
+            bayesian_network.harderHeuristicUpdate();
+        }
     }
-    updateProbabilities(ship, true);    //always true if we're here
 
 
 
 }
 
 void ProbabilisticBot::performNotDetected(Ship& ship){
+    updateProbabilities(ship, false);    //always false if we're here
+    bayesian_network.simpleHeuristicUpdate();
     if(id == "bot9" || id == "bot8"){
         correctedUpdate(ship, false);
+        if(id=="bot9"){
+            bayesian_network.harderHeuristicUpdate();
+        }
     }
 
-    updateProbabilities(ship, false);    //always false if we're here
 
 }
 
@@ -88,12 +96,61 @@ void ProbabilisticBot::updateProbabilities(Ship& ship, bool signalDetected){
 
 
 void ProbabilisticBot::moveToNextLocation(Ship& ship){
-    if(id == "bot9" || id=="bot8"){
+    if( id=="bot8"){
         intelligentStep(ship);
+    }else if(id == "bot4" || id == "bot9"){
+        heuristicStep(ship);
     }else{
         naiveNextStep(ship);
     }
 
+}
+
+void ProbabilisticBot::heuristicStep(Ship& ship){
+    std::pair<int, int> favorable = bayesian_network.getPreferedPosition(currentPosition);
+    std::pair<int, int> nextPosition = Utility::getClosestPosition({favorable.first, favorable.second}, openPositions);
+    std::vector<std::pair<int, int>> pathToNextPosition = ship.getShortestPath(currentPosition, nextPosition);
+    bool foundLeak = false;
+    for(const auto& pos : pathToNextPosition){
+        currentPosition = pos;
+        if(ship.canPlugLeak(currentPosition)){
+            bool done = ship.plugLeak(currentPosition);
+            if(done){
+                active = false;
+                return;
+            }else{
+                foundLeak = true;
+            }
+        }
+
+        // remore single position from open
+        Utility::removePosition(openPositions, currentPosition);
+        path.emplace_back(pos);
+
+        // update normal probabilities
+        // float prob = bayesian_network.getProbabilityAt(currentPosition);
+        float norm = 1/openPositions.size();     // this doesn't feel right; double check real quick
+        bayesian_network.updateProbabilities(currentPosition, norm);
+        bayesian_network.simpleHeuristicUpdate();
+
+        if(foundLeak){
+            // remove double probability not containing current
+            bayesian_network.narrowDownSearchSpace(currentPosition);
+            bayesian_network.harderHeuristicUpdate();
+        }else if(ship.almostDone() && id=="bot9"){
+            // can only remove one posibility at a time once we found the first leaks
+            bayesian_network.smallerRemove(currentPosition);
+            bayesian_network.harderHeuristicUpdate();
+        }else{
+            // remove double probability
+            bayesian_network.remove(currentPosition);
+        }
+
+        totalActions+=1;
+        if(foundLeak){
+            return;
+        }
+    }
 }
 
 void ProbabilisticBot::intelligentStep(Ship& ship){ //contains(open, position)
@@ -127,6 +184,15 @@ void ProbabilisticBot::intelligentStep(Ship& ship){ //contains(open, position)
 
 
         }
+        // remore single probability
+        Utility::removePosition(openPositions, currentPosition);
+        path.emplace_back(pos);
+
+        // update normal probabilities
+        // float prob = bayesian_network.getProbabilityAt(currentPosition);
+        float norm = 1/openPositions.size();     // this doesn't feel right; double check real quick
+        bayesian_network.updateProbabilities(currentPosition, norm);
+
         if(foundLeak){
             // remove double probability not containing current
             bayesian_network.narrowDownSearchSpace(currentPosition);
@@ -138,19 +204,7 @@ void ProbabilisticBot::intelligentStep(Ship& ship){ //contains(open, position)
             bayesian_network.remove(currentPosition);
         }
 
-        //ship.normalizePairs(openPositions);// no longer needed, I am doing this inside of remove now // this can difinitely be optimized; also might have to change how you normalize; check when not drunk
-
-        // remore single probability
-        Utility::removePosition(openPositions, currentPosition);
-        path.emplace_back(pos);
-
-        // update normal probabilities
-        float prob = bayesian_network.getProbabilityAt(currentPosition);
-        float norm = prob/openPositions.size();     // this doesn't feel right; double check real quick
-        bayesian_network.updateProbabilities(currentPosition, norm);
-
         totalActions+=1;
-
         if(foundLeak){
             return;
         }
@@ -173,8 +227,8 @@ void ProbabilisticBot::naiveNextStep(Ship& ship){
         }
         Utility::removePosition(openPositions, currentPosition);
         path.emplace_back(pos);
-        float prob = bayesian_network.getProbabilityAt(currentPosition);
-        float norm = prob/openPositions.size();
+        // float prob = bayesian_network.getProbabilityAt(currentPosition);
+        float norm = 1/openPositions.size();
         bayesian_network.updateProbabilities(currentPosition, norm);
         totalActions+=1;
     }

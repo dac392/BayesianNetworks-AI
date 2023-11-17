@@ -1,6 +1,9 @@
 #include "../headers/Probability.h"
+#include "../headers/Utility.h"
 
-Probability::Probability(int dimensions) : dimensions(dimensions)
+#define SUBSECTION_LENGTH 10
+
+Probability::Probability(int dimensions) : dimensions(dimensions), belief_table()
 {
 
 }
@@ -12,7 +15,9 @@ void Probability::init(const std::vector<std::pair<int, int>>& open, bool needsN
     float universal = 1/totalOpen;
     for(const auto& pos: open){
         probability_matrix[pos.first][pos.second] = universal;
+        belief_table.updateBelief({pos.first, pos.second}, universal);
     }
+
 
     if(needsNetwork){
         float total_pairs = 0.0;
@@ -44,6 +49,44 @@ std::vector<std::vector<float>> Probability::getProbabilities(){
     return probability_matrix;
 }
 
+std::pair<int, int> Probability::getPreferedPosition(const std::pair<int, int>& position){
+    std::vector<std::pair<int, int>> favorableList = belief_table.getFavoritePositions(position);
+    if(favorableList.size() == 1 && favorableList[0]==position){
+        int indexOfPos = belief_table.coordinateToIndex({position.first, position.second});
+        std::pair<int, int> start_coord = belief_table.indexToCoordinate(indexOfPos);
+        float max_val = 0.0f;
+        std::pair<int, int> goal;
+        for(int i = start_coord.first; i < SUBSECTION_LENGTH; i++){
+            for(int j = start_coord.second; j < SUBSECTION_LENGTH; j++){
+                if(probability_matrix[i][j] > max_val){
+                    max_val = probability_matrix[i][j];
+                    goal = std::pair<int, int>(i, j);
+                }
+            }
+        }
+
+        return goal;
+    }
+
+
+    std::pair<int, int> p = Utility::shufflePositions(favorableList);
+    return p;
+}
+void Probability::simpleHeuristicUpdate(){
+    belief_table.resetBelief();
+    for(int i = 0; i < dimensions; i++){
+        for(int j = 0; j < dimensions; j++){
+            if(probability_matrix[i][j]>0){
+                belief_table.updateBelief({i, j}, probability_matrix[i][j]);
+            }
+        }
+    }
+}
+void Probability::harderHeuristicUpdate(){
+    belief_table.resetBelief();
+    table.updateBeliefTable(belief_table);
+}
+
 
 std::vector<std::pair<int, int>> Probability::getHighestProbabilityList() {
     std::vector<std::pair<int, int>> highestProbPositions;
@@ -71,11 +114,13 @@ std::vector<std::pair<int, int>> Probability::getHighestProbabilityList() {
 }
 
 void Probability::updateProbabilities(const std::pair<int, int>& pos, float norm){
+    belief_table.resetBelief();
     probability_matrix[pos.first][pos.second] = 0;
     for(int i = 0; i < dimensions; i++){
         for(int j = 0; j < dimensions; j++){
             if(probability_matrix[i][j]!=0){
                 probability_matrix[i][j]+=norm;
+                belief_table.updateBelief({i, j}, probability_matrix[i][j]);
             }
 
         }
@@ -83,10 +128,12 @@ void Probability::updateProbabilities(const std::pair<int, int>& pos, float norm
 }
 
 void Probability::normalizeProbabilities(float modifier){
+    belief_table.resetBelief();
     for(int i = 0; i < dimensions; i++){
         for(int j = 0; j < dimensions; j++){
             if(positionIsOpen(i, j)){
                 probability_matrix[i][j] /= modifier;
+                belief_table.updateBelief({i, j}, probability_matrix[i][j]);
             }
         }
     }
@@ -137,3 +184,4 @@ void Probability::updatePairProbability(Table& distances, Sensor& sensor, const 
 void Probability::lateGameUpdate(Table& distances, Sensor& sensor, const std::pair<int, int>& curr, bool signalDetected){
     table.lateGameUpdate(distances, sensor, curr, signalDetected);
 }
+

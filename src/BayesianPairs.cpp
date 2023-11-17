@@ -184,3 +184,9 @@ void BayesianPairs::lateGameUpdate(Table& distances, Sensor& sensor, const std::
 
     normalize(normFactor);
 }
+
+void BayesianPairs::updateBeliefTable(Belief& belief_table){
+    for(auto& pair : hash_map){
+        belief_table.updateBelief(pair.first.second, pair.second);
+    }
+}

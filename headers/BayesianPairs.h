@@ -8,6 +8,7 @@
 #include "Coordinate.h"
 #include "Sensor.h"
 #include "Table.h"
+#include "Belief.h"
 
 
 
@@ -34,6 +35,8 @@ public:
     void narrowDownSearchSpace(const std::pair<int, int>& current);
     void updatePairProbability(Table& distances, Sensor& sensor,const std::pair<int, int>& curr, bool signalDetected);
     void lateGameUpdate(Table& distances, Sensor& sensor, const std::pair<int, int>& curr, bool signalDetected);
+    void updateBeliefTable(Belief& belief_table);
+
 };
 
 #endif // BAYESIANPAIRS_H

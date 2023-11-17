@@ -5,11 +5,13 @@
 #include <vector>
 
 #include "BayesianPairs.h"
+#include "Belief.h"
 class Probability
 {
 
 private:
     std::vector<std::vector<float>> probability_matrix;
+    Belief belief_table;
     BayesianPairs table;
     int dimensions;
 
@@ -32,6 +34,10 @@ public:
     void narrowDownSearchSpace(const std::pair<int, int>& current);
     void updatePairProbability(Table& distances, Sensor& sensor, const std::pair<int, int>& curr, bool signalDetected);
     void lateGameUpdate(Table& distances, Sensor& sensor, const std::pair<int, int>& curr, bool signalDetected);
+
+    std::pair<int, int> getPreferedPosition(const std::pair<int, int>& position);
+    void simpleHeuristicUpdate();
+    void harderHeuristicUpdate();
 };
 
 #endif // PROBABILITY_H

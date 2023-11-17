@@ -23,6 +23,7 @@ public:
     void updateProbabilities(Ship& ship, bool signalDetected);
     void naiveNextStep(Ship& ship);
     void intelligentStep(Ship& ship);
+    void heuristicStep(Ship& ship);
 
 };
 

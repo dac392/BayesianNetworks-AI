@@ -127,7 +127,6 @@ std::vector<std::pair<int, int>> Ship::getClosestReachable(const std::pair<int, 
 
 
 std::vector<std::pair<int, int>> Ship::getMostProbable(const std::pair<int, int>& current, std::vector<std::pair<int, int>>& mostProbable) {
-    std::vector<std::pair<int, int>> closestPositions;
     return distanceTable.getClosestPositions(current, mostProbable);
 }
 
