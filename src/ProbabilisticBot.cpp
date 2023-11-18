@@ -1,5 +1,5 @@
 #include "../headers/ProbabilisticBot.h"
-#include "../headers/Utility.h"
+#include "Utility.h"
 #include <stdexcept>
 
 // hardcoding dimensions of 50x50 on bayesian network;
@@ -107,8 +107,8 @@ void ProbabilisticBot::moveToNextLocation(Ship& ship){
 }
 
 void ProbabilisticBot::heuristicStep(Ship& ship){
-    std::pair<int, int> favorable = bayesian_network.getPreferedPosition(currentPosition);
-    std::pair<int, int> nextPosition = Utility::getClosestPosition({favorable.first, favorable.second}, openPositions);
+    std::pair<int, int> nextPosition = bayesian_network.getPreferedPosition(currentPosition);
+//    std::pair<int, int> nextPosition = Utility::getClosestPosition({favorable.first, favorable.second}, openPositions);
     std::vector<std::pair<int, int>> pathToNextPosition = ship.getShortestPath(currentPosition, nextPosition);
     bool foundLeak = false;
     for(const auto& pos : pathToNextPosition){
@@ -128,7 +128,7 @@ void ProbabilisticBot::heuristicStep(Ship& ship){
         path.emplace_back(pos);
 
         // update normal probabilities
-        // float prob = bayesian_network.getProbabilityAt(currentPosition);
+//        float prob = bayesian_network.getProbabilityAt(currentPosition);
         float norm = 1/openPositions.size();     // this doesn't feel right; double check real quick
         bayesian_network.updateProbabilities(currentPosition, norm);
         bayesian_network.simpleHeuristicUpdate();
@@ -141,7 +141,7 @@ void ProbabilisticBot::heuristicStep(Ship& ship){
             // can only remove one posibility at a time once we found the first leaks
             bayesian_network.smallerRemove(currentPosition);
             bayesian_network.harderHeuristicUpdate();
-        }else{
+        }else if(id=="bot9"){
             // remove double probability
             bayesian_network.remove(currentPosition);
         }
@@ -189,8 +189,8 @@ void ProbabilisticBot::intelligentStep(Ship& ship){ //contains(open, position)
         path.emplace_back(pos);
 
         // update normal probabilities
-        // float prob = bayesian_network.getProbabilityAt(currentPosition);
-        float norm = 1/openPositions.size();     // this doesn't feel right; double check real quick
+        float prob = bayesian_network.getProbabilityAt(currentPosition);
+        float norm = prob/openPositions.size();     // this doesn't feel right; double check real quick
         bayesian_network.updateProbabilities(currentPosition, norm);
 
         if(foundLeak){
@@ -227,8 +227,8 @@ void ProbabilisticBot::naiveNextStep(Ship& ship){
         }
         Utility::removePosition(openPositions, currentPosition);
         path.emplace_back(pos);
-        // float prob = bayesian_network.getProbabilityAt(currentPosition);
-        float norm = 1/openPositions.size();
+        float prob = bayesian_network.getProbabilityAt(currentPosition);
+        float norm = prob/openPositions.size();
         bayesian_network.updateProbabilities(currentPosition, norm);
         totalActions+=1;
     }

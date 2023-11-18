@@ -1,8 +1,10 @@
 #include "../headers/Belief.h"
-#include "../headers/Utility.h"
+//#include "Utility.h"
 #include <limits>
 
 #define ELEMENTS 25
+#define SUBSECTION_SIZE = 10
+#define GRID_SIZE = 50
 
 Belief::Belief()
 {
@@ -20,7 +22,7 @@ std::pair<int, int> Belief::indexToMainCoordinate(int index) {
     std::pair<int, int> val =  indexToCoordinate(index);
     val.first+=5;
     val.second+=5;
-    return val;    
+    return val;
 }
 
 std::pair<int, int> Belief::indexToCoordinate(int index) {
@@ -44,7 +46,7 @@ void Belief::resetBelief(){
 }
 
 /**
-*   1. Find the index of the maximum value in the belief vector 
+*   1. Find the index of the maximum value in the belief vector
 *   2. Convert the index to the top-left coordinate of the subsection
 *   3. Calculate the center of the subsection; Since each subsection is 10x10, the center will be 5 units away from the top-left coordinate on both axes
 */
@@ -54,39 +56,79 @@ std::pair<int, int> Belief::getMostFavorablePosition() {
     return std::make_pair(topLeftCoordinate.first + 5, topLeftCoordinate.second + 5);
 }
 
-std::vector<std::pair<int, int>> Belief::getFavoritePositions(const std::pair<int, int>& position){
-    int currentPosition = coordinateToIndex({position.first, position.second});
-    float maxBelief = *std::max_element(belief.begin(), belief.end());
-    std::vector<std::pair<int, int>> candidates;
-    std::vector<std::pair<int, int>> closestCandidates;
-    double minDistance = std::numeric_limits<double>::max();
-
-        // First, find the maximum belief value
-    for (int i = 0; i < ELEMENTS; ++i) {
-        if (belief[i] == maxBelief) {
-            if(i == currentPosition){
-                candidates.clear();
-                candidates.push_back(position);
-                return candidates;      
-            }
-
-            candidates.push_back(indexToMainCoordinate(i));
+std::pair<int, int> Belief::getFavoritePositions(const std::pair<int, int>& position){
+    int indexOfPos = coordinateToIndex({position.first, position.second});
+    std::vector<int> neighbors = getNeighborSubsections(position);
+    neighbors.push_back(indexOfPos);
+    float maxProb = 0.0f;
+    int maxIndex = -1;
+    for(const auto& neighbor : neighbors){
+        if(belief[neighbor]> maxProb){
+            maxProb = belief[neighbor];
+            maxIndex = neighbor;
         }
     }
-
-    std::pair<int, int> currentCenter = indexToMainCoordinate(currentPosition);
-    for (const auto& candidate : candidates) {
-        double distance = Utility::heuristic(currentCenter, candidate);
-
-        if (distance < minDistance) {
-            minDistance = distance;
-            closestCandidates.clear();
-        }
-
-        if (distance == minDistance) {
-            closestCandidates.push_back(candidate);
-        }
-    }
-
-    return closestCandidates;
+    std::pair<int, int> best = (maxIndex == indexOfPos)? position : indexToCoordinate(maxIndex);
+    return best;
 }
+
+
+std::vector<int> Belief::getNeighborSubsections(const std::pair<int, int>& position) {
+    int index = coordinateToIndex({position.first, position.second});
+    std::vector<int> neighbors;
+
+    // Determine row and column of the current subsection
+    int row = index / 5;
+    int col = index % 5;
+
+    // Add neighboring subsections, checking for grid boundaries
+    for (int r = row - 1; r <= row + 1; ++r) {
+        for (int c = col - 1; c <= col + 1; ++c) {
+            // Check if the neighbor is within grid bounds and not the current subsection itself
+            if (r >= 0 && r < 5 && c >= 0 && c < 5 && !(r == row && c == col)) {
+                neighbors.push_back(r * 5 + c);
+            }
+        }
+    }
+
+    return neighbors;
+}
+
+
+
+// std::vector<std::pair<int, int>> Belief::getFavoritePositions(const std::pair<int, int>& position){
+//     int currentPosition = coordinateToIndex({position.first, position.second});
+//     float maxBelief = *std::max_element(belief.begin(), belief.end());
+//     std::vector<std::pair<int, int>> candidates;
+//     std::vector<std::pair<int, int>> closestCandidates;
+//     double minDistance = std::numeric_limits<double>::max();
+
+//         // First, find the maximum belief value
+//     for (int i = 0; i < ELEMENTS; ++i) {
+//         if (belief[i] == maxBelief) {
+//             if(i == currentPosition){
+//                 candidates.clear();
+//                 candidates.push_back(position);
+//                 return candidates;
+//             }
+
+//             candidates.push_back(indexToMainCoordinate(i));
+//         }
+//     }
+
+//     std::pair<int, int> currentCenter = indexToMainCoordinate(currentPosition);
+//     for (const auto& candidate : candidates) {
+//         double distance = Utility::heuristic(currentCenter, candidate);
+
+//         if (distance < minDistance) {
+//             minDistance = distance;
+//             closestCandidates.clear();
+//         }
+
+//         if (distance == minDistance) {
+//             closestCandidates.push_back(candidate);
+//         }
+//     }
+
+//     return closestCandidates;
+// }

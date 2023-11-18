@@ -19,7 +19,7 @@ public:
     static int cast(int size);
     static bool isValid(int x, int y, int dim);
     static void error(const std::string& message);
-    static std::pair<int, int> getClosestPosition(const Coordinate& start, const std::vector<std::pair<int, int>>& open);
+    static std::pair<int, int> getClosestPosition(const Coordinate& start, std::vector<std::pair<int, int>>& open);
 };
 
 // PairHash definition

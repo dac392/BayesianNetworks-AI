@@ -27,8 +27,8 @@ public:
     std::string getDistanceFor(const std::string& id);
     bool isActive();
 
-    void collectData();
-    void collectMainData();
+    void collectData(int ff);
+    void collectMainData(int ff);
     void collectShipData();
     void collectBotData();
 

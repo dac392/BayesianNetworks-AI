@@ -85,7 +85,7 @@ bool Utility::isValid(int x, int y, int dim){
     return false;
 }
 
-std::pair<int, int> Utility::getClosestPosition(const Coordinate& start, const std::vector<std::pair<int, int>>& open){
+std::pair<int, int> Utility::getClosestPosition(const Coordinate& start, std::vector<std::pair<int, int>>& open){
     const std::vector<std::pair<int, int>> DIRECTIONS = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     std::queue<Coordinate> q;
     q.push(start);
@@ -102,4 +102,6 @@ std::pair<int, int> Utility::getClosestPosition(const Coordinate& start, const s
 
         }
     }
+
+    return Utility::shufflePositions(open);
 }

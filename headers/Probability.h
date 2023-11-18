@@ -10,10 +10,10 @@ class Probability
 {
 
 private:
+    int dimensions;
     std::vector<std::vector<float>> probability_matrix;
     Belief belief_table;
     BayesianPairs table;
-    int dimensions;
 
 public:
     Probability(int dimensions);

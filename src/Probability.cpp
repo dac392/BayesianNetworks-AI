@@ -50,27 +50,24 @@ std::vector<std::vector<float>> Probability::getProbabilities(){
 }
 
 std::pair<int, int> Probability::getPreferedPosition(const std::pair<int, int>& position){
-    std::vector<std::pair<int, int>> favorableList = belief_table.getFavoritePositions(position);
-    if(favorableList.size() == 1 && favorableList[0]==position){
-        int indexOfPos = belief_table.coordinateToIndex({position.first, position.second});
-        std::pair<int, int> start_coord = belief_table.indexToCoordinate(indexOfPos);
-        float max_val = 0.0f;
-        std::pair<int, int> goal;
-        for(int i = start_coord.first; i < SUBSECTION_LENGTH; i++){
-            for(int j = start_coord.second; j < SUBSECTION_LENGTH; j++){
-                if(probability_matrix[i][j] > max_val){
-                    max_val = probability_matrix[i][j];
-                    goal = std::pair<int, int>(i, j);
-                }
+    std::pair<int, int> favorable = belief_table.getFavoritePositions(position);
+
+    int indexOfPos = belief_table.coordinateToIndex({favorable.first, favorable.second});
+    float max_val = 0.0f;
+    std::pair<int, int> goal = favorable;
+
+
+    for(int i = 0; i < dimensions; i++){
+        for(int j = 0; j < dimensions; j++){
+            if(belief_table.coordinateToIndex({i, j}) == indexOfPos && probability_matrix[i][j] > max_val){
+                max_val = probability_matrix[i][j];
+                goal = std::pair<int, int>(i, j);
             }
         }
-
-        return goal;
     }
 
+    return goal;
 
-    std::pair<int, int> p = Utility::shufflePositions(favorableList);
-    return p;
 }
 void Probability::simpleHeuristicUpdate(){
     belief_table.resetBelief();
@@ -114,13 +111,13 @@ std::vector<std::pair<int, int>> Probability::getHighestProbabilityList() {
 }
 
 void Probability::updateProbabilities(const std::pair<int, int>& pos, float norm){
-    belief_table.resetBelief();
+//    belief_table.resetBelief();
     probability_matrix[pos.first][pos.second] = 0;
     for(int i = 0; i < dimensions; i++){
         for(int j = 0; j < dimensions; j++){
-            if(probability_matrix[i][j]!=0){
+            if(probability_matrix[i][j]!=0.0f){
                 probability_matrix[i][j]+=norm;
-                belief_table.updateBelief({i, j}, probability_matrix[i][j]);
+//                belief_table.updateBelief({i, j}, probability_matrix[i][j]);
             }
 
         }

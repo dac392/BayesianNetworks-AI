@@ -15,8 +15,9 @@ public:
     void updateBelief(Coordinate pos, float prob);
     void resetBelief();
     std::pair<int, int> getMostFavorablePosition();
-    std::vector<std::pair<int, int>> getFavoritePositions(const std::pair<int, int>& position);
-
+    std::pair<int, int> getFavoritePositions(const std::pair<int, int>& position);
+    int coordinateToSubsectionIndex(const std::pair<int, int>& position);
+    std::vector<int> getNeighborSubsections(const std::pair<int, int>& position);
 };
 
 #endif //BELIEF_H

@@ -15,9 +15,9 @@ std::condition_variable spinCondition;
 std::atomic<bool> stopSpinningThread(false); // Atomic flag to signal spinning thread
 
 
-void spinThread(int range_mod, float alpha) {
+void spinThread(int ff, int range_mod, float alpha) {
     while (!stopSpinningThread.load()) { // Check the flag in each iteration
-        App app(50, range_mod, alpha);
+        App app(ff, 50, range_mod, alpha);
         app.run();
         dataMutex.lock();
         app.collectData();
@@ -30,16 +30,16 @@ void spinThread(int range_mod, float alpha) {
     }
 }
 
-void simpleThread(int range_mod, float alpha){
-        App app(50, range_mod, alpha);
+void simpleThread(int ff, int range_mod, float alpha){
+        App app(ff, 50, range_mod, alpha);
         app.run();
         dataMutex.lock();
         app.collectData();
         dataMutex.unlock();
 }
 
-void nonSpinThread(int range_mod, float alpha) {
-    App app(50, range_mod, alpha);
+void nonSpinThread(int ff, int range_mod, float alpha) {
+    App app(ff, 50, range_mod, alpha);
     app.walk();
     dataMutex.lock();
     app.collectData();
@@ -47,31 +47,38 @@ void nonSpinThread(int range_mod, float alpha) {
 }
 
 int main() {
-    // std::vector<std::thread> threads;
+    std::vector<std::thread> threads;
+    std::vector<float> alphas = {0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00};
+    //EXPERIMENT_NUMBER
+    for (int i = 19; i > 0; i--) {
+        int range_mod = 1 + (i % 10);
+        float alpha = alphas[i];
+        for (int j = 0; j < 3; ++j) {
+            
+            threads.emplace_back(nonSpinThread,i,  range_mod, alpha);
+        }
 
-    // for (int i = 4; i < EXPERIMENT_NUMBER; i++) {
-    //     int range_mod = 1 + (i % 10);
-    //     float alpha = 0.05f * i + 0.05;
-    //     for (int j = 0; j < 3; ++j) {
-    //         threads.emplace_back(nonSpinThread, range_mod, alpha);
-    //     }
+        //Wait for non-spinning threads to finish
+        for (auto& thread : threads) {
+            thread.join();
+        }
+        threads.clear();
+        
+        for(int j = 0; j < 1; j++){
+            threads.emplace_back(simpleThread, i, range_mod, alpha);
+        }
+        for (auto& thread : threads) {
+            thread.join();
+        }
 
-    //     // Wait for non-spinning threads to finish
-    //     for (auto& thread : threads) {
-    //         thread.join();
-    //     }
-
-    //     std::thread simple(simpleThread, range_mod, alpha);
-    //     simple.join();
-
-    //     threads.clear();
-    // }
+        threads.clear();
+    }
 
     return 0;
 }
 
 
-App::App(int shipSize, int range_mod, int alpha) : environment(shipSize, range_mod, alpha) {
+App::App(int ff, int shipSize, int range_mod, int alpha) : ff(ff), environment(shipSize, range_mod, alpha) {
 //    environment.addBot("probabilistic", "bot9", false);     // is not dumb
     
 }
@@ -89,14 +96,12 @@ void App::printResults(){
 }
 
 void App::run() {
-    // environment.addBot("deterministic", "bot1", true);    // is dumb
-    // environment.addBot("deterministic", "bot2", true);
-    // environment.addBot("probabilistic", "bot3", true);      // is dumb
-    // environment.addBot("deterministic", "bot5", false);   // is not dumb
-    // environment.addBot("deterministic", "bot6", false);    // is dumb
-
+    environment.addBot("deterministic", "bot1", true);    // is dumb
+    environment.addBot("deterministic", "bot2", true);
+    environment.addBot("probabilistic", "bot3", true);      // is dumb
     environment.addBot("probabilistic", "bot4", true);
-    environment.addBot("probabilistic", "bot9", false);
+    environment.addBot("deterministic", "bot5", false);   // is not dumb
+    environment.addBot("deterministic", "bot6", false);    // is dumb
 
     environment.runSimulation();
     printResults();
@@ -105,13 +110,14 @@ void App::run() {
 void App::walk(){
     environment.addBot("probabilistic", "bot7", false);   // is not dumb
     environment.addBot("probabilistic", "bot8", false);     // is not dumb
+    environment.addBot("probabilistic", "bot9", false);
 
     environment.runSimulation();
     printResults();
 }
 
 void App::collectData(){
-    environment.collectData();
+    environment.collectData(ff);
 }
 
 // void spinThread(int range_mod, float alpha, bool easy){
@@ -128,14 +134,14 @@ void App::collectData(){
 
 // }
 
-int main() {
-    std::vector<std::thread> threads;
-    for(int i = 0; i < EXPERIMENT_NUMBER; i++){
-        int range_mod = 1+(i%10);
-        float alpha = 0.05f*i +0.05;
-        App app(50, range_mod, alpha);
-        app.run();
-    }
+// int main() {
+//     std::vector<std::thread> threads;
+//     for(int i = 0; i < EXPERIMENT_NUMBER; i++){
+//         int range_mod = 1+(i%10);
+//         float alpha = 0.05f*i +0.05;
+//         App app(50, range_mod, alpha);
+//         app.run();
+//     }
     
-    return 0;
-}
+//     return 0;
+// }

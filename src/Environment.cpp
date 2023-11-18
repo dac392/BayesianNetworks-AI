@@ -5,6 +5,8 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <fstream>
 
 #define DATA_FILE "data.txt"
@@ -35,23 +37,33 @@ bool Environment::isActive(){
     return ship.hasLeaks();
 }
 
-void Environment::collectData(){
-    collectMainData();
+void Environment::collectData(int ff){
+    collectMainData(ff);
     collectShipData();
     collectBotData();
 }
 
-void Environment::collectMainData(){
+void Environment::collectMainData(int ff) {
     //ship_uid, bot_uid, bot_name, bot_type, alpha|k, total_actions\n
     std::ofstream file(DATA_FILE, std::ios::app);
-    for(const auto& bot : bots){
-        if(bot->getTotalDistance() == -1) continue;
-        float mod = (bot->getType() == "Deterministic")? (float)range_mod : alpha;
-        file << ship.get_uid() << "," << bot->get_uid() << "," << bot->getID() << "," << bot->getType() << "," << mod << "," << bot->getTotalDistance() << "\n";
+    std::ostringstream stream;
+
+    for (const auto& bot : bots) {
+        if (bot->getTotalDistance() == -1) continue;
+
+        if (bot->getType() == "Deterministic") {
+            file << ship.get_uid() << "," << bot->get_uid() << "," << bot->getID() << "," << bot->getType() << "," << range_mod << "," << bot->getTotalDistance() << "\n";
+        }else {
+            // Use ostringstream to format alpha with two decimal places
+            // stream.str("");  // Clear the stream
+            // stream << std::fixed << std::setprecision(2) << bot->getSensor().getAlpha();
+            file << ship.get_uid() << "," << bot->get_uid() << "," << bot->getID() << "," << bot->getType() << "," << ff << "," << bot->getTotalDistance() << "\n";
+        }
     }
 
     file.close();
 }
+
 
 void Environment::collectShipData(){
     //ship_uid, grid_element grid_element...grid_element\n
