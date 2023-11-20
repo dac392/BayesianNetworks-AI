@@ -20,11 +20,13 @@ def main():
     # Process the alpha/k values
     data['alpha_k'] = data.apply(lambda row: process_alpha_k(row, alphas), axis=1)
 
-    # Initialize a figure for the combined graph
-    plt.figure(figsize=(15, 10))
+    # Initialize figures for the combined graphs
+    plt.figure(figsize=(10, 6))
+    prob_fig, prob_ax = plt.subplots()
+    det_fig, det_ax = plt.subplots()
 
-    # Generate and save line graphs for each bot and add to the combined graph
-    for i, bot_name in enumerate(data['bot_name'].unique(), start=1):
+    # Generate and save line graphs for each bot
+    for bot_name in data['bot_name'].unique():
         bot_df = data[data['bot_name'] == bot_name]
         avg_total_actions = bot_df.groupby('alpha_k')['total_actions'].mean()
 
@@ -37,16 +39,20 @@ def main():
         plt.savefig(f"{bot_name}_avg_actions_line_graph.png")
         plt.close()
 
-        # Add to combined graph
-        plt.subplot(3, 3, i)
-        avg_total_actions.plot(kind='line', title=bot_name)
-        plt.xlabel("Alpha/K Value")
-        plt.ylabel("Avg Total Actions")
+        # Add to combined graphs based on bot type
+        if bot_df.iloc[0]['bot_type'] == 'Probabilistic':
+            prob_ax.plot(avg_total_actions, label=bot_name)
+        else:
+            det_ax.plot(avg_total_actions, label=bot_name)
 
-    # Save the combined graph
-    plt.tight_layout()
-    plt.savefig("combined_avg_actions_line_graph.png")
-    plt.close()
+    # Save the combined graphs for Probabilistic and Deterministic bots
+    for ax, title, filename in [(prob_ax, "Probabilistic Bots", "combined_probabilistic_avg_actions_line_graph.png"), 
+                                (det_ax, "Deterministic Bots", "combined_deterministic_avg_actions_line_graph.png")]:
+        ax.set_title(title)
+        ax.set_xlabel("Alpha/K Value")
+        ax.set_ylabel("Average Total Actions")
+        ax.legend()
+        ax.figure.savefig(filename)
 
 if __name__ == "__main__":
     main()
