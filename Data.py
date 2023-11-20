@@ -20,15 +20,16 @@ def main():
     # Process the alpha/k values
     data['alpha_k'] = data.apply(lambda row: process_alpha_k(row, alphas), axis=1)
 
-    # Generate and save graphs for each bot
+    # Generate and save average total actions plots for each bot
     for bot_name in data['bot_name'].unique():
         bot_df = data[data['bot_name'] == bot_name]
+        avg_total_actions = bot_df.groupby('alpha_k')['total_actions'].mean()
         plt.figure(figsize=(10, 6))
-        plt.scatter(bot_df['alpha_k'], bot_df['total_actions'])
-        plt.title(f"Total Actions vs Alpha/K for {bot_name}")
+        avg_total_actions.plot(kind='bar')
+        plt.title(f"Average Total Actions vs Alpha/K for {bot_name}")
         plt.xlabel("Alpha/K Value")
-        plt.ylabel("Total Actions")
-        plt.savefig(f"{bot_name}_actions_graph.png")
+        plt.ylabel("Average Total Actions")
+        plt.savefig(f"{bot_name}_avg_actions_graph.png")
         plt.close()
 
 if __name__ == "__main__":
