@@ -20,12 +20,15 @@ def main():
     # Process the alpha/k values
     data['alpha_k'] = data.apply(lambda row: process_alpha_k(row, alphas), axis=1)
 
-    # Initialize figures for the combined graphs
-    plt.figure(figsize=(10, 6))
-    prob_fig, prob_ax = plt.subplots()
-    det_fig, det_ax = plt.subplots()
+    # Bot pairs for combined graphs
+    bot_pairs = {
+        "combined_bot1_bot2_avg_actions_line_graph.png": ["bot1", "bot2"],
+        "combined_bot3_bot4_avg_actions_line_graph.png": ["bot3", "bot4"],
+        "combined_bot5_bot6_avg_actions_line_graph.png": ["bot5", "bot6"],
+        "combined_bot7_bot8_bot9_avg_actions_line_graph.png": ["bot7", "bot8", "bot9"]
+    }
 
-    # Generate and save line graphs for each bot
+    # Generate and save line graphs for each bot and combined graphs
     for bot_name in data['bot_name'].unique():
         bot_df = data[data['bot_name'] == bot_name]
         avg_total_actions = bot_df.groupby('alpha_k')['total_actions'].mean()
@@ -39,20 +42,16 @@ def main():
         plt.savefig(f"{bot_name}_avg_actions_line_graph.png")
         plt.close()
 
-        # Add to combined graphs based on bot type
-        if bot_df.iloc[0]['bot_type'] == 'Probabilistic':
-            prob_ax.plot(avg_total_actions, label=bot_name)
-        else:
-            det_ax.plot(avg_total_actions, label=bot_name)
-
-    # Save the combined graphs for Probabilistic and Deterministic bots
-    for ax, title, filename in [(prob_ax, "Probabilistic Bots", "combined_probabilistic_avg_actions_line_graph.png"), 
-                                (det_ax, "Deterministic Bots", "combined_deterministic_avg_actions_line_graph.png")]:
-        ax.set_title(title)
-        ax.set_xlabel("Alpha/K Value")
-        ax.set_ylabel("Average Total Actions")
-        ax.legend()
-        ax.figure.savefig(filename)
+        # Add to combined graphs
+        for filename, bots in bot_pairs.items():
+            if bot_name in bots:
+                plt.figure(figsize=(10, 6))
+                avg_total_actions.plot(kind='line', label=bot_name)
+                plt.title("Average Total Actions vs Alpha/K")
+                plt.xlabel("Alpha/K Value")
+                plt.ylabel("Average Total Actions")
+                plt.legend()
+                plt.savefig(filename)
 
 if __name__ == "__main__":
     main()
