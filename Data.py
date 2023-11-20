@@ -20,17 +20,33 @@ def main():
     # Process the alpha/k values
     data['alpha_k'] = data.apply(lambda row: process_alpha_k(row, alphas), axis=1)
 
-    # Generate and save average total actions plots for each bot
-    for bot_name in data['bot_name'].unique():
+    # Initialize a figure for the combined graph
+    plt.figure(figsize=(15, 10))
+
+    # Generate and save line graphs for each bot and add to the combined graph
+    for i, bot_name in enumerate(data['bot_name'].unique(), start=1):
         bot_df = data[data['bot_name'] == bot_name]
         avg_total_actions = bot_df.groupby('alpha_k')['total_actions'].mean()
+
+        # Individual line graph
         plt.figure(figsize=(10, 6))
-        avg_total_actions.plot(kind='bar')
+        avg_total_actions.plot(kind='line')
         plt.title(f"Average Total Actions vs Alpha/K for {bot_name}")
         plt.xlabel("Alpha/K Value")
         plt.ylabel("Average Total Actions")
-        plt.savefig(f"{bot_name}_avg_actions_graph.png")
+        plt.savefig(f"{bot_name}_avg_actions_line_graph.png")
         plt.close()
+
+        # Add to combined graph
+        plt.subplot(3, 3, i)
+        avg_total_actions.plot(kind='line', title=bot_name)
+        plt.xlabel("Alpha/K Value")
+        plt.ylabel("Avg Total Actions")
+
+    # Save the combined graph
+    plt.tight_layout()
+    plt.savefig("combined_avg_actions_line_graph.png")
+    plt.close()
 
 if __name__ == "__main__":
     main()
