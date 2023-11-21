@@ -17,7 +17,9 @@
 #define CLOSED 1
 #define EXPLORED 3
 
-
+/**
+ * Constructor
+*/
 Ship::Ship(int size) : dimensions(size), grid(size, std::vector<int>(size, 0)),
     rng(std::chrono::system_clock::now().time_since_epoch().count()) {
     initializeGrid();
@@ -25,6 +27,9 @@ Ship::Ship(int size) : dimensions(size), grid(size, std::vector<int>(size, 0)),
 
 }
 
+/**
+ * resets leaks depenging on whether the bot can handle 1 or 2 leaks
+*/
 void Ship::fixLeaks(bool one_leak){
     if(one_leak){
         leaks[0].reset();
@@ -38,6 +43,7 @@ void Ship::fixLeaks(bool one_leak){
 void Ship::setID(const std::string& ship_name){
     id = ship_name;
 }
+
 std::string Ship::get_uid(){
     return id;
 }
@@ -51,6 +57,10 @@ bool Ship::hasLeaks(){
     return false;
 }
 
+/**
+ * used for sequential runs
+ * only used for debugging purposes
+*/
 bool Ship::firstRoundTest(){
     if(leaks.empty())
         return true;
@@ -58,12 +68,11 @@ bool Ship::firstRoundTest(){
     return false;
 }
 
+/**
+ * initializes the gameboard map
+*/
 void Ship::initializeGrid() {
-    // we use closed=0 and open=-1 for grid at the beginning.
-    // Initialize the grid as a DxD blocked cells (blocked means 0)
     grid = std::vector<std::vector<int>>(dimensions, std::vector<int>(dimensions, 0));
-
-    // Randomly choose a cell and open it
     std::uniform_int_distribution<int> dis(1, dimensions - 2); // interior cells only
     int start_x = dis(rng);
     int start_y = dis(rng);
@@ -97,11 +106,16 @@ bool contains(const std::vector<std::pair<int, int>>& vec, const std::pair<int, 
     return std::find(vec.begin(), vec.end(), element) != vec.end();
 }
 
+/**
+ * used for retreiving distance from distance table
+*/
 int Ship::getDistanceFrom(const std::pair<int, int>& start, const std::pair<int, int>& end){
     return distanceTable.getDistance(start, end);
 }
 
-
+/**
+ * resets the game board for next bot to use
+*/
 void Ship::normalizeGrid() {
     for (int i = 0; i < dimensions; ++i) {
         for (int j = 0; j < dimensions; ++j) {
@@ -119,26 +133,32 @@ void Ship::normalizeGrid() {
 
 
 
-
+/**
+ * find closest reachable position from a start position
+*/
 std::vector<std::pair<int, int>> Ship::getClosestReachable(const std::pair<int, int>& start, const std::vector<std::pair<int, int>>& open) {
     return distanceTable.getClosestPositions(start, open);
 }
 
 
-
+/**
+ * get most probable position from a start position
+*/
 std::vector<std::pair<int, int>> Ship::getMostProbable(const std::pair<int, int>& current, std::vector<std::pair<int, int>>& mostProbable) {
     return distanceTable.getClosestPositions(current, mostProbable);
 }
 
 
-
+/**
+ * get shortest path from start to ending position
+*/
 std::vector<std::pair<int, int>> Ship::getShortestPath(std::pair<int, int> start, std::pair<int, int> goal) {
     std::queue<std::pair<int, int>> q;
     std::map<std::pair<int, int>, std::pair<int, int>> predecessors;
     std::vector<std::pair<int, int>> path;
 
     q.push(start);
-    predecessors[start] = {-1, -1};  // Mark the start node as visited with a special predecessor
+    predecessors[start] = {-1, -1};
 
     while (!q.empty()) {
         auto current = q.front();
@@ -151,8 +171,8 @@ std::vector<std::pair<int, int>> Ship::getShortestPath(std::pair<int, int> start
                 path.push_back(current);
                 current = predecessors[current];
             }
-            path.push_back(start); // Don't forget to add the start position
-            std::reverse(path.begin(), path.end()); // The path is constructed backwards, so reverse it
+            path.push_back(start);
+            std::reverse(path.begin(), path.end());
             return path;
         }
 
@@ -162,12 +182,11 @@ std::vector<std::pair<int, int>> Ship::getShortestPath(std::pair<int, int> start
             // If the neighbor has not been visited
             if (predecessors.find(neighbor) == predecessors.end()) {
                 q.push(neighbor);
-                predecessors[neighbor] = current; // Set the current node as its predecessor
+                predecessors[neighbor] = current;
             }
         }
     }
 
-    // Return an empty path if no path exists
     return path;
 }
 
@@ -193,6 +212,9 @@ bool Ship::isPositionOpen(int i, int j, const std::vector<std::pair<int, int>>& 
     return false;
 }
 
+/**
+ * resets ship information
+*/
 std::vector<std::pair<int, int>> Ship::reset() {
     std::vector<std::pair<int, int>> fixedLeaks;
 
@@ -213,6 +235,9 @@ std::vector<std::pair<int, int>> Ship::reset() {
     return fixedLeaks;
 }
 
+/**
+ * mainly used for ship generation
+*/
 std::vector<std::pair<int, int>> Ship::getNeighbors(int x, int y) const {
     std::vector<std::pair<int, int>> neighbors;
 
@@ -225,7 +250,9 @@ std::vector<std::pair<int, int>> Ship::getNeighbors(int x, int y) const {
     return neighbors;
 }
 
-
+/**
+ * mainly used for ship generation
+*/
 std::vector<std::pair<int, int>> Ship::getOpenNeighbors(int x, int y) {
     std::vector<std::pair<int, int>> openNeighbors;
     auto neighbors = getNeighbors(x, y);
@@ -237,10 +264,16 @@ std::vector<std::pair<int, int>> Ship::getOpenNeighbors(int x, int y) {
     return openNeighbors;
 }
 
+/**
+ * returns gameboard grid
+*/
 std::vector<std::vector<int>>& Ship::getGrid() {
     return grid;
 }
 
+/**
+ * checks if a position contains a leak that can be plugged
+*/
 bool Ship::canPlugLeak(const std::pair<int, int>& pos){
     for(const auto& leak : leaks){
         if(leak.getPosition() == pos && leak.isActive()){
@@ -249,6 +282,10 @@ bool Ship::canPlugLeak(const std::pair<int, int>& pos){
     }
     return false;
 }
+
+/**
+ * mainly used for ship generation
+*/
 void Ship::eliminate_dead_ends(std::set<std::pair<int, int>>& dead_ends) {
     // Eliminate half of the dead ends randomly
     std::vector<std::pair<int, int>> dead_ends_vector(dead_ends.begin(), dead_ends.end());
@@ -264,7 +301,9 @@ void Ship::eliminate_dead_ends(std::set<std::pair<int, int>>& dead_ends) {
 }
 
 
-
+/**
+ * add's new leak to the ship
+*/
 void Ship::addLeak(const std::vector<std::pair<int, int>>& blockedPositions) {
     std::pair<int, int> position;
     bool isPositionValid;
@@ -287,6 +326,9 @@ void Ship::addLeak(const std::vector<std::pair<int, int>>& blockedPositions) {
     leaks.emplace_back(position); // Add the new Leak object with the position
 }
 
+/**
+ * mainly used for ship generation
+*/
 std::set<std::pair<int, int>> Ship::get_dead_ends() {
     std::set<std::pair<int, int>> dead_ends;
     for (int i = 1; i < dimensions - 1; ++i) {
@@ -302,6 +344,9 @@ std::set<std::pair<int, int>> Ship::get_dead_ends() {
     return dead_ends;
 }
 
+/**
+ * mainly used for ship generation
+*/
 bool Ship::is_dead_end(int x, int y) const {
     std::vector<std::pair<int, int>> neighbors = getNeighbors(x, y);
     int open_count = 0;
@@ -313,7 +358,9 @@ bool Ship::is_dead_end(int x, int y) const {
     return open_count == 1; // A dead end has exactly one open neighbor
 }
 
-
+/**
+ * mainly used for ship generation
+*/
 std::vector<std::pair<int, int>> Ship::get_closed_neighbors(int x, int y) {
     std::vector<std::pair<int, int>> closed_neighbors;
     auto neighbors = getNeighbors(x, y);
@@ -325,6 +372,9 @@ std::vector<std::pair<int, int>> Ship::get_closed_neighbors(int x, int y) {
     return closed_neighbors;
 }
 
+/**
+ * returns the position of all leaks
+*/
 std::vector<std::pair<int, int>> Ship::getPositionOfLeaks() {
     std::vector<std::pair<int, int>> positions;
     for (const auto& leak : leaks) {
@@ -333,6 +383,9 @@ std::vector<std::pair<int, int>> Ship::getPositionOfLeaks() {
     return positions;
 }
 
+/**
+ * deactivates a leak, returns bool based on whether there are more active leaks or not
+*/
 bool Ship::plugLeak(const std::pair<int, int>& pos){
     for(auto& l : leaks){
         if(pos == l.getPosition()){

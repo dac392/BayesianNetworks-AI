@@ -6,6 +6,10 @@
 
 #include "BayesianPairs.h"
 #include "Belief.h"
+
+/**
+ * class used for storing all probability related functions
+*/
 class Probability
 {
 

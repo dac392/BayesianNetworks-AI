@@ -5,6 +5,9 @@
 #include <utility>
 #include <vector>
 
+/**
+ * used for handling spiral approach for deterministic bot
+*/
 class Spiral
 {
 private:

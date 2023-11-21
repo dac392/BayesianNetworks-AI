@@ -11,7 +11,9 @@
 #include "Belief.h"
 
 
-
+/**
+ * used for storing pair probabilities
+*/
 class BayesianPairs
 {
 private:

@@ -7,6 +7,9 @@
 #include <utility>
 #include <vector>
 
+/**
+ * shared class that the other two classes inherit from
+*/
 class Bot {
 protected:
     bool dumb;

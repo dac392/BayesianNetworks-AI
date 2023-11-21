@@ -12,7 +12,7 @@
 #define DATA_FILE "data.txt"
 #define SHIP_FILE "ship_data.txt"
 #define BOT_FILE "bot_data.txt"
-
+// constructor
 Environment::Environment(int shipSize, int range_mod, float alpha)
     : ship(shipSize), range_mod(range_mod), alpha(alpha) {
     ship.setID(Utility::generateTimestampID());
@@ -23,6 +23,7 @@ Environment::Environment(int shipSize, int range_mod, float alpha)
     ship.addLeak(DeterministicBot(coordinate, range_mod, alpha, "", false).getSpawnRadius());
 }
 
+// gets total actions for a given botID
 std::string Environment::getDistanceFor(const std::string& id){
     for(const auto& bot: bots){
         if(bot->getID() == id){
@@ -33,16 +34,22 @@ std::string Environment::getDistanceFor(const std::string& id){
     return "Not Found";
 }
 
+// checks if a ship is still active; mainly used for debugging
 bool Environment::isActive(){
     return ship.hasLeaks();
 }
 
+// calls all data collection methods
 void Environment::collectData(int ff){
     collectMainData(ff);
     collectShipData();
     collectBotData();
 }
 
+/*
+    Collects most interesting data
+    requires alpha as an index to an array because I could not find a way to properly store raw alpha value
+*/
 void Environment::collectMainData(int ff) {
     //ship_uid, bot_uid, bot_name, bot_type, alpha|k, total_actions\n
     std::ofstream file(DATA_FILE, std::ios::app);
@@ -54,9 +61,6 @@ void Environment::collectMainData(int ff) {
         if (bot->getType() == "Deterministic") {
             file << ship.get_uid() << "," << bot->get_uid() << "," << bot->getID() << "," << bot->getType() << "," << range_mod << "," << bot->getTotalDistance() << "\n";
         }else {
-            // Use ostringstream to format alpha with two decimal places
-            // stream.str("");  // Clear the stream
-            // stream << std::fixed << std::setprecision(2) << bot->getSensor().getAlpha();
             file << ship.get_uid() << "," << bot->get_uid() << "," << bot->getID() << "," << bot->getType() << "," << ff << "," << bot->getTotalDistance() << "\n";
         }
     }
@@ -64,7 +68,7 @@ void Environment::collectMainData(int ff) {
     file.close();
 }
 
-
+// Ship Data collection - mostly used for seeding if you wanted to rebuild a ship
 void Environment::collectShipData(){
     //ship_uid, grid_element grid_element...grid_element\n
     std::ofstream file(SHIP_FILE, std::ios::app);
@@ -79,6 +83,7 @@ void Environment::collectShipData(){
     file.close();
 }
 
+// Bot Data collection - mostly used for seeding if you wanted to rebuild a ship
 void Environment::collectBotData(){
     // positions are recorded to csv in format: (0 0)(0 1)...(3 2)(3 3)
     // bot_uid, goal positions, path taken, positions scanned <empty for prob bots>\n
@@ -108,6 +113,10 @@ void Environment::collectBotData(){
     }
 }
 
+/*
+    used for visual representation purposes
+    - gets the resulting grid for a bot along with its path taken and goal positions
+*/
 std::vector<std::vector<int>> Environment::getGridFor(const std::string& id) {
     // Make a copy of the ship's grid
     std::vector<std::vector<int>> newGrid = ship.getGrid();
@@ -162,7 +171,9 @@ std::vector<std::vector<int>> Environment::getGridFor(const std::string& id) {
     return newGrid;
 }
 
-
+/*
+ *  used for adding a new bot to the Environment
+*/
 void Environment::addBot(std::string type, std::string id, bool mode) {
     std::pair<int, int> pos = coordinate;
 
@@ -182,16 +193,13 @@ void Environment::addBot(std::string type, std::string id, bool mode) {
     bots.push_back(std::move(bot));
 }
 
-
+/**
+ * used for running the program
+*/
 void Environment::runSimulation() {
-    // Logic to run the simulation with bots and the ship
-    // This will typically involve iterating over the bots and invoking their behavior
-
     for (auto& bot : bots) {
         std::cout << "\trunning " << bot->getID() << std::endl;
         ship.fixLeaks(bot->isDumb());
-
-//        int count = 0;&& count < 2
         while(bot->isActive() ){
             bool leakDetected = bot->performScan(ship);
             if(leakDetected){
@@ -206,15 +214,16 @@ void Environment::runSimulation() {
                 bot->invalidateActions();
                 break;
             }
-
-
-//            count++;
         }
         std::vector<std::pair<int, int>> leakPositions = ship.reset();
         bot->setLeakPositions(leakPositions);
     }
 }
 
+
+/**
+ * used for sequentially running the program (mostly debugging)
+*/
 void Environment::runTestSimulation(){
     // Iterate over the list of bots to find the one with ID "bot1"
     for (auto& bot : bots) {

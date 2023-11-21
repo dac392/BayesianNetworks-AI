@@ -1,5 +1,5 @@
 #include "../headers/ProbabilisticBot.h"
-#include "Utility.h"
+#include "../headers/Utility.h"
 #include <stdexcept>
 
 // hardcoding dimensions of 50x50 on bayesian network;
@@ -7,6 +7,9 @@ ProbabilisticBot::ProbabilisticBot(const std::pair<int, int>& startPos, int rang
     : Bot(startPos, range_mod, alpha, id, dumb), bayesian_network(50) {
 }
 
+/**
+ * after initializing open position, also initialize your probability network
+*/
 void ProbabilisticBot::populateOpenPositions(const std::vector<std::vector<int>>& grid){
     Bot::populateOpenPositions(grid);
     bayesian_network.init(openPositions, (id=="bot9" || id=="bot8"));
@@ -30,9 +33,6 @@ void ProbabilisticBot::performDetected(Ship& ship){
             bayesian_network.harderHeuristicUpdate();
         }
     }
-
-
-
 }
 
 void ProbabilisticBot::performNotDetected(Ship& ship){
@@ -48,6 +48,9 @@ void ProbabilisticBot::performNotDetected(Ship& ship){
 
 }
 
+/**
+ * scans the area returns bool if beep was heard
+*/
 bool ProbabilisticBot::scan(Ship& ship){
     std::vector<std::pair<int, int>> leaks = ship.getPositionOfLeaks();
     bool signal = false;
@@ -61,6 +64,9 @@ bool ProbabilisticBot::scan(Ship& ship){
     return signal;
 }
 
+/**
+ * used for properly updating 2-leak scenario
+*/
 void ProbabilisticBot::correctedUpdate(Ship& ship, bool signalDetected){
     if(ship.almostDone()){
         bayesian_network.lateGameUpdate(ship.getDistances(), sensor, currentPosition, signalDetected);
@@ -70,6 +76,9 @@ void ProbabilisticBot::correctedUpdate(Ship& ship, bool signalDetected){
 
 }
 
+/**
+ * 1-leak probability update
+*/
 void ProbabilisticBot::updateProbabilities(Ship& ship, bool signalDetected){
 
     float sumProbabilities = 0.0;
@@ -85,16 +94,14 @@ void ProbabilisticBot::updateProbabilities(Ship& ship, bool signalDetected){
 
         sumProbabilities+=bayesian_network.getProbabilityAt(pos);
     }
-
-
     bayesian_network.normalizeProbabilities(sumProbabilities);
-
-
 }
 
 
 
-
+/**
+ * decides how to move to the next position depending on the bot
+*/
 void ProbabilisticBot::moveToNextLocation(Ship& ship){
     if( id=="bot8"){
         intelligentStep(ship);
@@ -106,9 +113,11 @@ void ProbabilisticBot::moveToNextLocation(Ship& ship){
 
 }
 
+/**
+ * bot 4 and bot 9 decision making for next step 
+*/
 void ProbabilisticBot::heuristicStep(Ship& ship){
     std::pair<int, int> nextPosition = bayesian_network.getPreferedPosition(currentPosition);
-//    std::pair<int, int> nextPosition = Utility::getClosestPosition({favorable.first, favorable.second}, openPositions);
     std::vector<std::pair<int, int>> pathToNextPosition = ship.getShortestPath(currentPosition, nextPosition);
     bool foundLeak = false;
     for(const auto& pos : pathToNextPosition){
@@ -126,9 +135,6 @@ void ProbabilisticBot::heuristicStep(Ship& ship){
         // remore single position from open
         Utility::removePosition(openPositions, currentPosition);
         path.emplace_back(pos);
-
-        // update normal probabilities
-//        float prob = bayesian_network.getProbabilityAt(currentPosition);
         float norm = 1/openPositions.size();     // this doesn't feel right; double check real quick
         bayesian_network.updateProbabilities(currentPosition, norm);
         bayesian_network.simpleHeuristicUpdate();
@@ -153,6 +159,9 @@ void ProbabilisticBot::heuristicStep(Ship& ship){
     }
 }
 
+/**
+ * getting next step for bot8
+*/
 void ProbabilisticBot::intelligentStep(Ship& ship){ //contains(open, position)
     std::vector<std::pair<int, int>> candidates;
     std::vector<std::pair<int, int>> allMostProbable;
@@ -163,8 +172,6 @@ void ProbabilisticBot::intelligentStep(Ship& ship){ //contains(open, position)
 
     }
     candidates = ship.getMostProbable(currentPosition, allMostProbable);
-
-
     std::pair<int, int> nextPosition = Utility::shufflePositions(candidates);
     std::vector<std::pair<int, int>> pathToNextPosition = ship.getShortestPath(currentPosition, nextPosition);
     bool foundLeak = false;
@@ -211,6 +218,9 @@ void ProbabilisticBot::intelligentStep(Ship& ship){ //contains(open, position)
     }
 }
 
+/**
+ * get next step for 1-leak and bot7 scenarios
+*/
 void ProbabilisticBot::naiveNextStep(Ship& ship){
     std::vector<std::pair<int, int>> candidates = ship.getMostProbable(currentPosition, openPositions);
 

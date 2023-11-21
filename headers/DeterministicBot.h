@@ -5,6 +5,9 @@
 #include "Spiral.h"
 #include <algorithm>
 
+/**
+ * handles Deterministic approach
+*/
 class DeterministicBot : public Bot {
 
 private:

@@ -50,11 +50,10 @@ int main() {
     std::vector<std::thread> threads;
     std::vector<float> alphas = {0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00};
     //EXPERIMENT_NUMBER
-    for (int i = 6; i > 0; i--) {
-        int range_mod = 1 + (i % 10);
+    for (int i = 15; i >= 0; i--) {
+        int range_mod = 1 + (i % 16);
         float alpha = alphas[i];
-        for (int j = 0; j < 3; ++j) {
-            
+        for (int j = 0; j < 4; ++j) {       
             threads.emplace_back(nonSpinThread,i,  range_mod, alpha);
         }
 
@@ -62,14 +61,14 @@ int main() {
         for (auto& thread : threads) {
             thread.join();
         }
-        threads.clear();
+        // threads.clear();
 
-        for(int j = 0; j < 3; j++){
-            threads.emplace_back(simpleThread, i, range_mod, alpha);
-        }
-        for (auto& thread : threads) {
-            thread.join();
-        }
+        // for(int j = 0; j < 5; j++){
+        //     threads.emplace_back(simpleThread, i, range_mod, alpha);
+        // }
+        // for (auto& thread : threads) {
+        //     thread.join();
+        // }
 
         threads.clear();
     }
@@ -96,10 +95,10 @@ void App::printResults(){
 }
 
 void App::run() {
-    environment.addBot("deterministic", "bot1", true);    // is dumb
-    environment.addBot("deterministic", "bot2", true);
-    environment.addBot("probabilistic", "bot3", true);      // is dumb
-    environment.addBot("probabilistic", "bot4", true);
+//    environment.addBot("deterministic", "bot1", true);    // is dumb
+//    environment.addBot("deterministic", "bot2", true);
+//    environment.addBot("probabilistic", "bot3", true);      // is dumb
+//    environment.addBot("probabilistic", "bot4", true);
     environment.addBot("deterministic", "bot5", false);   // is not dumb
     environment.addBot("deterministic", "bot6", false);    // is dumb
 
@@ -108,8 +107,8 @@ void App::run() {
 }
 
 void App::walk(){
-    environment.addBot("probabilistic", "bot7", false);   // is not dumb
-    environment.addBot("probabilistic", "bot8", false);     // is not dumb
+    // environment.addBot("probabilistic", "bot7", false);   // is not dumb
+    // environment.addBot("probabilistic", "bot8", false);     // is not dumb
     environment.addBot("probabilistic", "bot9", false);
 
     environment.runSimulation();

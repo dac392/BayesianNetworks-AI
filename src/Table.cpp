@@ -24,6 +24,9 @@ void Table::init(const std::vector<std::vector<int>>& grid){
     }
 }
 
+/**
+ * runs unbounded dfs to find all distances
+*/
 void Table::bfs(const std::vector<std::vector<int>>& grid, Coordinate start){
     const std::vector<std::pair<int, int>> DIRECTIONS = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     std::queue<Coordinate> q;
@@ -48,6 +51,9 @@ void Table::bfs(const std::vector<std::vector<int>>& grid, Coordinate start){
     }
 }
 
+/**
+ * retrieves distance from start to goal
+*/
 int Table::getDistance(const std::pair<int, int>& start, const std::pair<int, int>& goal){
     Coordinate from = {start.first, start.second};
     Coordinate to = {goal.first, goal.second};
@@ -59,7 +65,9 @@ int Table::getDistance(const std::pair<int, int>& start, const std::pair<int, in
     return -1;
 }
 
-
+/**
+ * gets the closest open positon for some start position
+*/
 std::vector<std::pair<int, int>> Table::getClosestPositions(const std::pair<int, int>& start, const std::vector<std::pair<int, int>>& open){
     std::vector<std::pair<int, int>> closestPositions;
     int minimumDistance = std::numeric_limits<int>::max();

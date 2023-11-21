@@ -3,6 +3,9 @@
 
 #include "Environment.h"
 
+/**
+ * used as driver for program execution
+*/
 class App {
 private:
     int ff;

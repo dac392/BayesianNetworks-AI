@@ -9,14 +9,17 @@
 #include "Leak.h"
 #include "Table.h"
 
+/**
+ * maintains main state 
+*/
 class Ship {
 private:
     int dimensions;
-    std::string id;
-    std::vector<std::vector<int>> grid;
-    Table distanceTable;
-    std::vector<Leak> leaks;
-    std::default_random_engine rng;
+    std::string id;                     // UID
+    std::vector<std::vector<int>> grid; // gameboard
+    Table distanceTable;                // stores distances
+    std::vector<Leak> leaks;            // list of leaks
+    std::default_random_engine rng; 
 
     std::vector<std::pair<int, int>> getNeighbors(int x, int y) const;
     std::vector<std::pair<int, int>> getOpenNeighbors(int x, int y);

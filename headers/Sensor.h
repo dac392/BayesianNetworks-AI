@@ -3,6 +3,9 @@
 
 #include <random>
 
+/**
+ * used for both approaches in sensing
+*/
 class Sensor {
 private:
     int range;

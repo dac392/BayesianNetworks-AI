@@ -9,6 +9,9 @@
 
 #define GRID_SIZE 50
 
+/**
+ * handles distance related matters
+*/
 class Table
 {
 private:

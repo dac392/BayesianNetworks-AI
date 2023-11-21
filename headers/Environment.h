@@ -7,6 +7,9 @@
 #include <memory> // For std::unique_ptr
 #include <string>
 
+/**
+ * manages program so that App is simple to write
+*/
 class Environment {
 private:
     Ship ship;

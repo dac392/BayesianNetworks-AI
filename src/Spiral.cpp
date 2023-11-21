@@ -28,6 +28,9 @@ std::pair<int, int> Spiral::findNextPosition(Ship& ship, std::vector<std::pair<i
 
 }
 
+/**
+ * logic for searching when no beep has been heard
+*/
 std::pair<int, int> Spiral::blindSearch(Ship& ship, std::vector<std::pair<int, int>>& open){
     if (open.empty()) {
         Utility::error("Fatal error: blind search, open is empty");
@@ -71,7 +74,9 @@ std::pair<int, int> Spiral::blindSearch(Ship& ship, std::vector<std::pair<int, i
 }
 
 
-
+/**
+ * logic for searching when there is a leak within detection range
+*/
 std::pair<int, int> Spiral::informedSearch(Ship& ship, std::vector<std::pair<int, int>>& open) {
     if(search(open, 0)){
         return position;
@@ -87,6 +92,9 @@ std::pair<int, int> Spiral::informedSearch(Ship& ship, std::vector<std::pair<int
     return position;
 }
 
+/**
+ * logic for searching when there is a leak within detection range
+*/
 bool Spiral::search(const std::vector<std::pair<int, int>>& open, int dead_end){
     if(dead_end == 4){
         return false;

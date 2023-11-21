@@ -20,6 +20,13 @@ void DeterministicBot::performNotDetected(Ship& ship){
     removePositionsInRange();
 }
 
+void DeterministicBot::moveToNextLocation(Ship& ship) {
+    if(id == "bot2" || id == "bot6"){
+        spiralApproach(ship);
+    }else{
+        naiveApproach(ship);
+    }
+}
 
 std::string DeterministicBot::getType(){
     return "Deterministic";
@@ -65,17 +72,23 @@ bool DeterministicBot::scan(std::vector<std::pair<int, int>> leaks) {
     return leakDetected;
 }
 
-void DeterministicBot::recordDifference(){  // record difference of OPEN - INRANGE
+/**
+ * record difference of OPEN - INRANGE for 2-leak correction
+*/
+void DeterministicBot::recordDifference(){
         not_yet_explored.clear();
         int sensorRange = this->getSensor().getRange();
         for(const auto& pos : openPositions){
-            int distance = Utility::heuristic(currentPosition, pos);    // this might actually have to be true distance
+            int distance = Utility::heuristic(currentPosition, pos);
             if(distance > sensorRange){
                 not_yet_explored.emplace_back(pos);
             }
         }
 }
 
+/**
+ * removes all position from open not in the detection square
+*/
 void  DeterministicBot::removePositionsOutOfRange(){
     if(!dumb){
         recordDifference();
@@ -95,10 +108,10 @@ void  DeterministicBot::removePositionsOutOfRange(){
 
 }
 
-
+/**
+ * removes positions within range because no beep was heard
+*/
 void DeterministicBot::removePositionsInRange() {
-
-    // Get the detection range from the sensor
     int detectionRange = this->getSensor().getRange();
 
     // Use the erase-remove idiom to remove positions within the detection range from openPositions
@@ -116,14 +129,9 @@ void DeterministicBot::removePositionsInRange() {
 
 }
 
-void DeterministicBot::moveToNextLocation(Ship& ship) {
-    if(id == "bot2" || id == "bot6"){
-        spiralApproach(ship);
-    }else{
-        naiveApproach(ship);
-    }
-}
-
+/**
+ * spiral motion for steping
+*/
 void DeterministicBot::spiralApproach(Ship& ship){
     std::pair<int, int> next = heuristic.findNextPosition(ship, openPositions);
     totalActions += ship.getDistanceFrom(currentPosition, next);
@@ -140,6 +148,9 @@ void DeterministicBot::spiralApproach(Ship& ship){
     }
 }
 
+/**
+ * regular next step approach
+*/
 void DeterministicBot::naiveApproach(Ship& ship){
     std::vector<std::pair<int, int>> candidates = ship.getClosestReachable(currentPosition, openPositions);
 
@@ -161,11 +172,9 @@ void DeterministicBot::naiveApproach(Ship& ship){
     }
 }
 
-
-
-
-
-
+/**
+ * used for ensuring no leaks are generated inside the initial detection radius
+*/
 std::vector<std::pair<int, int>> DeterministicBot::getSpawnRadius() {
     std::vector<std::pair<int, int>> spawnRadius;
 

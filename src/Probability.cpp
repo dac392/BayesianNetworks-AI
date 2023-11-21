@@ -8,6 +8,9 @@ Probability::Probability(int dimensions) : dimensions(dimensions), belief_table(
 
 }
 
+/**
+ * initiates probability based information and if bot8 or bot9 also initiates pair probability network
+*/
 void Probability::init(const std::vector<std::pair<int, int>>& open, bool needsNetwork){
     probability_matrix= std::vector<std::vector<float>>(dimensions, std::vector<float>(dimensions, 0));
 
@@ -49,6 +52,9 @@ std::vector<std::vector<float>> Probability::getProbabilities(){
     return probability_matrix;
 }
 
+/**
+ * used for finding the most favorable position in a 10x10 section
+*/
 std::pair<int, int> Probability::getPreferedPosition(const std::pair<int, int>& position){
     std::pair<int, int> favorable = belief_table.getFavoritePositions(position);
 
@@ -69,6 +75,10 @@ std::pair<int, int> Probability::getPreferedPosition(const std::pair<int, int>& 
     return goal;
 
 }
+
+/**
+ * simple probability update for single leak and bot7
+*/
 void Probability::simpleHeuristicUpdate(){
     belief_table.resetBelief();
     for(int i = 0; i < dimensions; i++){
@@ -79,6 +89,10 @@ void Probability::simpleHeuristicUpdate(){
         }
     }
 }
+
+/**
+ * updates pair proabilities
+*/
 void Probability::harderHeuristicUpdate(){
     belief_table.resetBelief();
     table.updateBeliefTable(belief_table);
@@ -111,13 +125,11 @@ std::vector<std::pair<int, int>> Probability::getHighestProbabilityList() {
 }
 
 void Probability::updateProbabilities(const std::pair<int, int>& pos, float norm){
-//    belief_table.resetBelief();
     probability_matrix[pos.first][pos.second] = 0;
     for(int i = 0; i < dimensions; i++){
         for(int j = 0; j < dimensions; j++){
             if(probability_matrix[i][j]!=0.0f){
                 probability_matrix[i][j]+=norm;
-//                belief_table.updateBelief({i, j}, probability_matrix[i][j]);
             }
 
         }

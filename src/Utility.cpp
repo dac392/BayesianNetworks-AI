@@ -46,8 +46,6 @@ std::pair<int, int> Utility::shufflePositions(std::vector<std::pair<int, int>>& 
     // Shuffle the positions vector
     std::shuffle(positions.begin(), positions.end(), g);
 
-    // Assuming you want to return the first element after shuffling
-
     return positions.front();
 
 }

@@ -3,6 +3,10 @@
 
 #include "Coordinate.h"
 #include <vector>
+
+/**
+ * used for handling sectioning related functions
+*/
 class Belief
 {
 private:

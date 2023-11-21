@@ -4,6 +4,9 @@
 #include "Bot.h"
 #include "Probability.h"
 
+/**
+ * handles Probabilistic approaches
+*/
 class ProbabilisticBot : public Bot {
 private:
     Probability bayesian_network;
